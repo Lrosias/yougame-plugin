@@ -52,7 +52,8 @@ spreads here, so it belongs in the first version, not a follow-up. A game with v
 co-op becomes an online room directly; a single-player game becomes a race — both players
 start the same run from the same seed at the same moment, each sees the other's progress, and
 whoever is ahead when the round ends wins. Local seats, hot-seat play, and bots filling empty
-slots do not count. Follow the `yougame-sdk` skill (or `get_sdk_reference` /
+slots do not count, and rooms never mix humans with bots: a room holds people only, starts
+when its last seat fills, and has no partial start. Bot play stays in single-player. Follow the `yougame-sdk` skill (or `get_sdk_reference` /
 https://yougame.co/sdk.md) for the contract, and tell the user if you skipped it and why.
 
 Coins and paywalls stay opt-in: add those only when the user asks.

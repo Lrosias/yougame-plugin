@@ -15,7 +15,8 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    `room.finish({ winner })`, rounds started from the room's `ready` event, `leave` / `close`
    handled. A versus or co-op game becomes an online room directly; a single-player game
    becomes a race from the same seed, each player seeing the other's progress. Local seats
-   and bots do not count. Paywalls and phone controls stay opt-in.
+   and bots do not count, and rooms never mix humans with bots (bot play stays in
+   single-player). Paywalls and phone controls stay opt-in.
 4. Run the pre-upload checks on the finished folder and fix what they report until the
    verdict is `ready`: the `check_build` tool if the YouGame MCP
    (`https://yougame.co/mcp`) is connected, otherwise POST

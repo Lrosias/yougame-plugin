@@ -41,7 +41,9 @@ Every game that can take it should have it: it is the biggest reason a game spre
 YouGame. A versus or co-op game becomes an online room directly; a single-player game becomes
 a race — both players start the same run from the same seed at the same moment, each sees the
 other's progress, and whoever is ahead when the round ends wins. Local seats and bots filling
-empty slots are not multiplayer here.
+empty slots are not multiplayer here, and rooms never mix the two: a room holds people only
+(2 to 10 seats), starts when its last seat fills, and has no partial start and no bots. Bot
+play, if the game has it, is the single-player mode.
 
 `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })` gets a room: matchmaking,
 friend invites, ratings, and the result card are the platform's job. The game's job is the
