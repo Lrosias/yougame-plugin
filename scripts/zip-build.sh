@@ -11,10 +11,22 @@
 set -eu
 
 no_open=${YOUGAME_NO_OPEN:-}
-if [ "${1:-}" = "--no-open" ]; then
-  no_open=1
-  shift
-fi
+args=""
+for a in "$@"; do
+  case "$a" in
+    --no-open) no_open=1 ;;
+    -*) echo "Unknown option: $a" >&2; exit 2 ;;
+    *) args="$args
+$a" ;;
+  esac
+done
+# shellcheck disable=SC2086
+set -f
+IFS='
+'
+set -- $args
+unset IFS
+set +f
 
 dir=${1:-}
 if [ -z "$dir" ]; then
@@ -40,19 +52,33 @@ if [ -z "$out" ]; then
   out=$(cd "$dir/.." && pwd)/"$name-yougame.zip"
 fi
 case "$out" in
+  *.zip) ;;
+  *) echo "The output path must end in .zip (got: $out)" >&2; exit 2 ;;
+esac
+case "$out" in
   /*) ;;
   *) out="$(pwd)/$out" ;;
 esac
 
+# Never ship the things that live next to a build but are not part of it. Every pattern needs
+# its `*/` twin: zip matches the stored path, so `.env` alone would let `config/.env` through,
+# and that file would then be world-readable on the game's own origin.
 rm -f "$out"
 (
   cd "$dir"
   zip -r -q -X "$out" . \
-    -x '.git/*' '.git' '.gitignore' 'node_modules/*' '.DS_Store' '*/.DS_Store' '__MACOSX/*' '*.map' 'Thumbs.db' '.env' '.env.*'
+    -x '.git/*' '*/.git/*' '.git' '*/.git' '.gitignore' '*/.gitignore' \
+      'node_modules/*' '*/node_modules/*' \
+      '.env' '.env.*' '*/.env' '*/.env.*' \
+      '.npmrc' '*/.npmrc' '*.pem' '*.key' \
+      '.DS_Store' '*/.DS_Store' '__MACOSX/*' '*.map' 'Thumbs.db'
 )
 
 size=$(wc -c <"$out" | tr -d ' ')
 echo "Zipped $dir -> $out ($((size / 1024)) KB)"
+if [ "$size" -gt 524288000 ]; then
+  echo "That is over YouGame's 500 MB limit; the upload page will refuse it." >&2
+fi
 echo "Upload it at https://yougame.co/upload (drag the zip onto the page)."
 
 # Best effort: put the upload page in front of the creator and reveal the zip.
