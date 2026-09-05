@@ -9,14 +9,14 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
 2. Add the leaderboard — `<script src="https://yougame.co/sdk.js"></script>` and
    `YouGame.gameOver(score, { onRestart })` when a run ends. Non-negative integers, higher
    is better. Reference: https://yougame.co/sdk.md.
-3. Add online multiplayer unless the game genuinely cannot take it — it is what the site is
-   for and the biggest reason a game spreads here.
-   `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`, a host-authoritative round,
-   `room.finish({ winner })`, rounds started from the room's `ready` event, `leave` / `close`
-   handled. A versus or co-op game becomes an online room directly; a single-player game
-   becomes a race from the same seed, each player seeing the other's progress. Local seats
-   and bots do not count, and rooms never mix humans with bots (bot play stays in
-   single-player). Paywalls and phone controls stay opt-in.
+3. Online multiplayer, paywalls, and phone controls are opt-in: add them only when the
+   creator asks. When they ask for multiplayer, two people on two different computers is
+   the bar: `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`, a
+   host-authoritative round, `room.finish({ winner })`, rounds started from the room's
+   `ready` event, `leave` / `close` handled. A versus or co-op game becomes an online room
+   directly; a single-player game becomes a race from the same seed, each player seeing the
+   other's progress. Local seats and bots do not count, and rooms never mix humans with
+   bots (bot play stays in single-player).
 4. Run the pre-upload checks on the finished folder and fix what they report until the
    verdict is `ready`: the `check_build` tool if the YouGame MCP
    (`https://yougame.co/mcp`) is connected, otherwise POST
