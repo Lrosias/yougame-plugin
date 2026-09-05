@@ -1,6 +1,6 @@
 ---
 name: publish-to-yougame
-description: Turn a browser game into a build that runs on YouGame and get it ready to upload, or publish it outright with the creator's API key — the static build contract, the leaderboard SDK, the pre-upload checks, the zip, and the upload and publish_game step. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
+description: Turn a browser game into a build that runs on YouGame and get it ready to upload, or, with the creator's API key, upload it, fill in the whole listing, and hand the creator a review link — the static build contract, the leaderboard SDK, the pre-upload checks, the zip, and the prepare_submission step. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
 ---
 
 # Publishing a game on YouGame
@@ -82,17 +82,18 @@ editor junk, prints the path, and opens https://yougame.co/upload (pass `--no-op
 if a browser window would be unwelcome). Then tell the user, in
 one short message:
 
-- where the zip is, and that the upload page takes it by drag and drop (or that you
-  published it, with the URL, when step 6 applied);
+- where the zip is, and that the upload page takes it by drag and drop (or the review
+  link, when step 6 applied);
 - that the listing needs a 16:9 thumbnail (PNG/JPG/WebP/GIF, up to 8 MB) — screenshots and
   a short demo video are optional;
 - what you added (leaderboard or not, and why), and anything `check_build` warned about but
   you left alone.
 
-## 6. Publish it yourself, when the creator gave you a key
+## 6. Fill in the submission, when the creator gave you a key
 
 If `YOUGAME_API_KEY` is set in the environment (the creator made it at
-https://yougame.co/account → Coding agents), finish the job instead of handing over the zip:
+https://yougame.co/account → Coding agents), take the submission all the way to the
+creator's final click instead of handing over a zip:
 
 ```bash
 curl -sS -X POST https://yougame.co/api/agent/upload \
@@ -101,13 +102,35 @@ curl -sS -X POST https://yougame.co/api/agent/upload \
 ```
 
 The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict`, and the
-`report`. If the verdict is `broken`, fix, zip, upload again. Then call the MCP tool
-**`publish_game`** with the `uploadId`, a title, a one-paragraph description, up to three
-genres, the controls, `mobile` only if the game plays with touch, and `thumbnail`: the path
-of a 16:9 image inside the build (add one to the build folder before zipping if there is
-none; without it the card is a plain tile). It answers with the game's URL; tell the user.
-`my_games` lists what the key's owner has published. The exact fields are under
-"Publishing from a coding agent" in the publish guide.
+`report`. If the verdict is `broken`, fix, zip, upload again.
+
+Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
+title, a one-paragraph description written from the game, up to three genres, the controls,
+`play_mode`, `mobile` (only if it really plays with touch), `mature`, `max_score` when the game
+has a natural ceiling, a `paywalls` row for every key the build charges, `notes` saying what you
+decided and assumed, and a thumbnail. You know the game; decide from it, and suggest rather
+than leave blanks. Ask the creator, before calling, about the things the game itself cannot
+settle:
+
+- **Thumbnail.** If the build has a 16:9 image, pass its path as `thumbnail`. If not, ask
+  whether to use an image they have, to let you make one, or to add it on the review page.
+  To make one: screenshot the game running at `testUrl` at 1280×720 (Playwright or any headless
+  browser you have), or render a title card; then send it as the raw body of
+  `PUT https://yougame.co/api/agent/media?uploadId=<uploadId>&kind=thumb` with the right
+  `Content-Type`. `kind=shot` adds screenshots.
+- **Mature content**, when what you saw in the game leaves it unclear.
+- **Paywall prices and kinds** (`unlock` once, or `play` every time) for every charged key.
+
+The reply has `reviewUrl` and `questions`. Ask the creator whatever `questions` lists, call
+`prepare_submission` again with the answers (it replaces the draft), then give the creator the
+review link. It opens the upload form with every field filled in; they change what they want
+and press Publish. Nothing is live until they do.
+
+**Never publish for them.** `publish_game` skips the review and refuses without
+`creator_approved: true`; pass that only when the creator explicitly said, in their own words,
+to publish without reviewing (or approved the draft in the conversation). Speed is not a reason.
+`my_games` lists what the key's owner has published. The exact fields are under "Publishing
+from a coding agent" in the publish guide.
 
 **Updating a published game** works the same way: stage the new build with the upload route,
 then call **`update_game`** with the game's `slug` (from `my_games` or its URL), the new

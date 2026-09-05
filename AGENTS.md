@@ -24,3 +24,10 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    https://yougame.co/api/check-build.
 5. Zip the folder's *contents* (not the folder) and tell the creator the path. They upload
    it at https://yougame.co/upload; the listing needs a 16:9 thumbnail.
+6. With `YOUGAME_API_KEY` set (made at https://yougame.co/account → Coding agents): POST the
+   zip to https://yougame.co/api/agent/upload, then call `prepare_submission` (or POST
+   https://yougame.co/api/agent/draft) with every listing field filled in from the game —
+   title, description, genres, controls, play mode, phones, mature, max score, paywall prices,
+   a thumbnail (from the build, or one you make and PUT to /api/agent/media). Ask the creator
+   about anything the game cannot settle, then give them the review link it returns; they press
+   Publish there. Never call `publish_game` unless they explicitly asked you to skip the review.
