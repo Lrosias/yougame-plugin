@@ -128,7 +128,8 @@ and press Publish. Nothing is live until they do.
 
 **Never publish for them.** `publish_game` skips the review and refuses without
 `creator_approved: true`; pass that only when the creator explicitly said, in their own words,
-to publish without reviewing (or approved the draft in the conversation). Speed is not a reason.
+to publish without opening the review page. "Looks good" about your draft summary is not that,
+and speed is not a reason.
 `my_games` lists what the key's owner has published. The exact fields are under "Publishing
 from a coding agent" in the publish guide.
 
