@@ -62,7 +62,7 @@ project to get the same workflow without asking for it.
 | `check_build` | The upload page's checks over a folder: `ready`, `risky`, or `broken`, with the reasons. |
 | `search` / `fetch` | One answer out of the docs instead of 40 KB of markdown. |
 | `publish_game` / `my_games` | With your API key: publish a staged build (zip posted to `/api/agent/upload`) and list your games. |
-| Prompts | `make_yougame_ready`, `publish_to_yougame`, `add_leaderboard`, `make_playable_on_phones`, `add_multiplayer`. |
+| Prompts | `make_yougame_ready` and `publish_to_yougame` (one prompt built from what the creator wants: `leaderboard`, `multiplayer`, `phones` yes/no, and the `paywalls` rows), plus `add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer` for a game that is already up. |
 
 Reading and checking is public: no account, no token, no key. Publishing is yours: either
 drop the zip at https://yougame.co/upload, or make an API key at

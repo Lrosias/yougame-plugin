@@ -109,6 +109,13 @@ none; without it the card is a plain tile). It answers with the game's URL; tell
 `my_games` lists what the key's owner has published. The exact fields are under
 "Publishing from a coding agent" in the publish guide.
 
+**Updating a published game** works the same way: stage the new build with the upload route,
+then call **`update_game`** with the game's `slug` (from `my_games` or its URL), the new
+`uploadId`, `kind` (`major` for a big change: players who saved or liked the game are
+notified and the home feed features it for a week; `minor` for fixes and small changes:
+silent; default `minor`), and `notes` (patch notes for players). The link, the origin, the
+scores and the comments stay. Never delete and re-publish a game to update it.
+
 Without a key, the upload is the creator's step: it needs their account, and the zip is
 drag and drop on the upload page.
 
