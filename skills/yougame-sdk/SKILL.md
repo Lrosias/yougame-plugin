@@ -58,7 +58,7 @@ exactly as before.
 
 ## Coins
 
-Tips and wagers need no game code. Paid items and paywalls are switched off for now; do not
+Tips and coin matches need no game code. Paid items and paywalls are switched off for now; do not
 build against them.
 
 ## After any of these
