@@ -1,6 +1,6 @@
 ---
 name: publish-to-yougame
-description: Turn a browser game into a build that runs on YouGame and get it ready to upload — the static build contract, the leaderboard SDK, the pre-upload checks, and the zip. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
+description: Turn a browser game into a build that runs on YouGame and get it ready to upload, or publish it outright with the creator's API key — the static build contract, the leaderboard SDK, the pre-upload checks, the zip, and the upload and publish_game step. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
 ---
 
 # Publishing a game on YouGame
@@ -73,14 +73,35 @@ editor junk, prints the path, and opens https://yougame.co/upload (pass `--no-op
 if a browser window would be unwelcome). Then tell the user, in
 one short message:
 
-- where the zip is, and that the upload page takes it by drag and drop;
+- where the zip is, and that the upload page takes it by drag and drop (or that you
+  published it, with the URL, when step 6 applied);
 - that the listing needs a 16:9 thumbnail (PNG/JPG/WebP/GIF, up to 8 MB) — screenshots and
   a short demo video are optional;
 - what you added (leaderboard or not, and why), and anything `check_build` warned about but
   you left alone.
 
-The upload itself is the creator's step: it needs their account, and there is no upload
-token yet.
+## 6. Publish it yourself, when the creator gave you a key
+
+If `YOUGAME_API_KEY` is set in the environment (the creator made it at
+https://yougame.co/account → Coding agents), finish the job instead of handing over the zip:
+
+```bash
+curl -sS -X POST https://yougame.co/api/agent/upload \
+  -H "Authorization: Bearer $YOUGAME_API_KEY" -H "Content-Type: application/zip" \
+  --data-binary @<the zip>
+```
+
+The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict`, and the
+`report`. If the verdict is `broken`, fix, zip, upload again. Then call the MCP tool
+**`publish_game`** with the `uploadId`, a title, a one-paragraph description, up to three
+genres, the controls, `mobile` only if the game plays with touch, and `thumbnail`: the path
+of a 16:9 image inside the build (add one to the build folder before zipping if there is
+none; without it the card is a plain tile). It answers with the game's URL; tell the user.
+`my_games` lists what the key's owner has published. The exact fields are under
+"Publishing from a coding agent" in the publish guide.
+
+Without a key, the upload is the creator's step: it needs their account, and the zip is
+drag and drop on the upload page.
 
 ## Fixing a build that already failed
 

@@ -1,5 +1,5 @@
 ---
-description: Make this game YouGame-ready, check it, and zip it for upload
+description: Make this game YouGame-ready, check it, and zip it for upload (or publish it, with YOUGAME_API_KEY set)
 argument-hint: "[build folder, e.g. dist]"
 ---
 
@@ -10,4 +10,6 @@ first, and say which one you picked).
 
 Do all of it: make the build static and self-contained, add the leaderboard with the SDK,
 run `check_build` and fix everything it reports until the verdict is `ready`, then zip the
-folder's contents and tell me where the zip is and what to do on the upload page.
+folder's contents. If `YOUGAME_API_KEY` is set, upload the zip and publish the game with
+`publish_game` (skill step 6) and give me its URL; otherwise tell me where the zip is and
+what to do on the upload page.
