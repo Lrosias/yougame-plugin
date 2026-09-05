@@ -38,8 +38,16 @@ if [ ! -d "$dir" ]; then
   exit 2
 fi
 if [ ! -f "$dir/index.html" ]; then
-  echo "No index.html at the top level of $dir. YouGame starts the game from index.html; move it up or point me at the right folder." >&2
-  exit 1
+  # YouGame stores a folder's only top-level .html page as index.html (a Godot export is MyGame.html).
+  page_list=$(find "$dir" -maxdepth 1 -type f -iname '*.htm*' | grep -Ei '\.html?$')
+  pages=$(printf '%s' "$page_list" | grep -c .)
+  if [ "$pages" -eq 1 ]; then
+    page=$(basename "$page_list")
+    echo "No index.html at the top level of $dir; its one page $page is uploaded as index.html." >&2
+  else
+    echo "No index.html at the top level of $dir, and $pages .html pages there (YouGame uses the only page as index.html when there is exactly one). Move the page that starts the game up, or point me at the right folder." >&2
+    exit 1
+  fi
 fi
 if ! command -v zip >/dev/null 2>&1; then
   echo "zip is not installed. Any zip of the folder's contents works: index.html must be at the top of the archive." >&2
