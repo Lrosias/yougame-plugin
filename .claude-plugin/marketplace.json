@@ -1,0 +1,32 @@
+{
+  "name": "yougame",
+  "owner": {
+    "name": "YouGame",
+    "url": "https://yougame.co"
+  },
+  "description": "Publish browser games on YouGame from your coding agent.",
+  "plugins": [
+    {
+      "name": "yougame",
+      "source": "./",
+      "displayName": "YouGame",
+      "description": "Publish browser games on YouGame: the build contract, the leaderboard SDK, the pre-upload checks, and a zip ready to upload.",
+      "version": "1.0.0",
+      "author": {
+        "name": "YouGame",
+        "url": "https://yougame.co"
+      },
+      "homepage": "https://yougame.co/plugin",
+      "license": "MIT",
+      "category": "gamedev",
+      "keywords": [
+        "games",
+        "gamedev",
+        "html5",
+        "leaderboard",
+        "multiplayer",
+        "publishing"
+      ]
+    }
+  ]
+}
