@@ -46,8 +46,16 @@ Scores are non-negative integers and higher is better — convert timed games so
 bigger number. Let the SDK's overlay be the game-over screen instead of the game's own.
 If the game has no score at all, say so and move on; do not invent one.
 
-Do **not** add multiplayer, coins, or anything else from the SDK unless the user asks.
-Details for those: the `yougame-sdk` skill, or `get_sdk_reference` / https://yougame.co/sdk.md.
+Then add **online multiplayer**, unless this game genuinely cannot take it. Two people on two
+different computers is what YouGame is for, and an online mode is the biggest reason a game
+spreads here, so it belongs in the first version, not a follow-up. A game with versus or
+co-op becomes an online room directly; a single-player game becomes a race — both players
+start the same run from the same seed at the same moment, each sees the other's progress, and
+whoever is ahead when the round ends wins. Local seats, hot-seat play, and bots filling empty
+slots do not count. Follow the `yougame-sdk` skill (or `get_sdk_reference` /
+https://yougame.co/sdk.md) for the contract, and tell the user if you skipped it and why.
+
+Coins and paywalls stay opt-in: add those only when the user asks.
 
 ## 4. Check it, and fix what it says
 

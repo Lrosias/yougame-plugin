@@ -35,7 +35,13 @@ controls where the game needs them, no keyboard, no hover, no right-click, tap t
 default prevented so the page never scrolls or zooms mid-game. Keep the canvas sized to the
 window in both orientations. Keyboard and mouse play must keep working on computers.
 
-## Online multiplayer (beta)
+## Online multiplayer
+
+Every game that can take it should have it: it is the biggest reason a game spreads on
+YouGame. A versus or co-op game becomes an online room directly; a single-player game becomes
+a race — both players start the same run from the same seed at the same moment, each sees the
+other's progress, and whoever is ahead when the round ends wins. Local seats and bots filling
+empty slots are not multiplayer here.
 
 `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })` gets a room: matchmaking,
 friend invites, ratings, and the result card are the platform's job. The game's job is the

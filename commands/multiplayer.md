@@ -1,9 +1,12 @@
 ---
-description: Add YouGame online multiplayer (beta) to this game
+description: Add YouGame online multiplayer to this game
 ---
 
-Add YouGame online multiplayer to the game in this project, following the `yougame-sdk`
-skill and the Multiplayer section of https://yougame.co/sdk.md.
+Add YouGame online multiplayer to the game in this project — two people on two different
+computers, not local seats or bots — following the `yougame-sdk` skill and the Multiplayer
+section of https://yougame.co/sdk.md. If the game has no versus or co-op mode to put online,
+make it a race: both players start the same run from the same seed at the same moment, each
+sees the other's progress, and whoever is ahead when the round ends wins.
 
 Add an "Online" option that calls `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`,
 use the host-authoritative pattern, start every round from the room's `ready` event (it
