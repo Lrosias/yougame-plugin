@@ -9,8 +9,10 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
 2. Add the leaderboard — `<script src="https://yougame.co/sdk.js"></script>` and
    `YouGame.gameOver(score, { onRestart })` when a run ends. Non-negative integers, higher
    is better. Reference: https://yougame.co/sdk.md.
-3. Online multiplayer, paywalls, and phone controls are opt-in: add them only when the
-   creator asks. When they ask for multiplayer, two people on two different computers is
+3. Saves, online multiplayer, paywalls, and phone controls are opt-in: add them only when
+   the creator asks. Saves are `YouGame.load()` at start (Continue when it returns data)
+   and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the
+   player's account. When they ask for multiplayer, two people on two different computers is
    the bar: `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`, a
    host-authoritative round, `room.finish({ winner })`, rounds started from the room's
    `ready` event, `leave` / `close` handled. A versus or co-op game becomes an online room

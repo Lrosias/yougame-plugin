@@ -1,6 +1,6 @@
 ---
 name: yougame-sdk
-description: Add YouGame SDK features to a game — leaderboards and beat-my-score links, touch controls that qualify for the phone listing, online multiplayer with matchmaking and rematches, ratings, and coins. Use when the user asks for a leaderboard, high scores, online or head-to-head play, phone support, or anything else from the YouGame SDK.
+description: Add YouGame SDK features to a game — leaderboards and beat-my-score links, saves that let a player resume on any device, touch controls that qualify for the phone listing, online multiplayer with matchmaking and rematches, ratings, and coins. Use when the user asks for a leaderboard, high scores, save games or continue, online or head-to-head play, phone support, or anything else from the YouGame SDK.
 ---
 
 # The YouGame SDK
@@ -17,7 +17,7 @@ for one answer, e.g. `search("rematch")`. Read the relevant section before writi
 the API details change faster than this skill does.
 
 Each feature also exists as an MCP prompt you can run instead of re-deriving the work:
-`add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer`; and
+`add_leaderboard`, `add_saves`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer`; and
 `make_yougame_ready` takes them all as yes/no arguments (plus the creator's paywall rows) when
 the game is being made ready in one go.
 
@@ -27,6 +27,16 @@ the game is being made ready in one go.
 better; convert timed games so faster is a bigger number. The SDK draws the game-over
 overlay, the rank reveal, and the beat-my-score link, so remove the game's own game-over
 screen rather than stacking two. This is the one feature worth adding to every game.
+
+## Saves
+
+A game with progress worth keeping (levels, unlocks, a run longer than one sitting) should
+let the player resume: `const { data } = await YouGame.load()` at start, a Continue option
+when `data` is not null (New game calls `YouGame.clearSave()`), and `YouGame.save(state)` at
+checkpoints, level clears, and the menu. Keep the state a small plain JSON object under
+64 KB (ids, counters, flags; never scores, which go through `gameOver`). The SDK writes the
+browser copy every time and sends it to the player's account on YouGame, so a signed-in
+player picks up on any device. Check the shape of what comes back before restoring from it.
 
 ## Phones
 

@@ -27,7 +27,7 @@ Then, in the project that holds your game:
 ```
 
 Other commands: `/yougame:check` (just the checks), `/yougame:leaderboard`,
-`/yougame:phones`, `/yougame:multiplayer`. The two skills — `publish-to-yougame` and
+`/yougame:saves`, `/yougame:phones`, `/yougame:multiplayer`. The two skills — `publish-to-yougame` and
 `yougame-sdk` — also fire on their own when you say what you want ("get this game on
 YouGame", "add a leaderboard").
 
