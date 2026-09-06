@@ -68,6 +68,31 @@ handle `leave` and `close` so a player who quits does not freeze the others. Aut
 online mode when `YouGame.multiplayer.invite` is set. Single-player must keep working
 exactly as before.
 
+## Persistent worlds
+
+Only when the creator asked for one. A world is a shared space players log into that keeps
+its state between visits (a build world, a shared farm, a canvas, a board everyone edits):
+`YouGame.worlds.join("main")`, then `world.state` and the `change` event, with `set`,
+`cas`, `inc`, and `claim` to write. Read the "Persistent worlds" section of the reference
+before building one.
+
+**Say what it is not, before writing code.** A world is shared state YouGame keeps and
+relays, not a game server. Tell the creator, in plain words:
+
+- none of the game's logic runs on YouGame; every client is trusted, so any player can
+  write any key. Co-op and creative games only: nothing competitive between strangers, no
+  economy or inventory worth cheating for, nothing tied to coins;
+- writes are last-writer-wins per key. Every fast-changing thing gets exactly one writer
+  (each player writes their own `p:<id>` keys); shared objects use `cas` (place a block if
+  the cell is empty), `inc` (counters), or `claim` (one player handles it for a while).
+  A shared simulation many players push on at once does not fit;
+- nothing happens while nobody is connected: no ticks, no NPCs, no offline progress;
+- everyone receives every change and a joining player downloads the whole state;
+- 32 players, 16 KB per value, 60 messages a second per player, 10,000 keys and 512 KB
+  per world; no matchmaking, ratings, result card, or coin match inside a world.
+
+If any of that rules the game out, say so and stop rather than building around it.
+
 ## Coins
 
 Tips and coin matches need no game code. Paid items and paywalls are switched off for now; do not
