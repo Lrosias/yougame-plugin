@@ -84,8 +84,8 @@ rm -f "$out"
 
 size=$(wc -c <"$out" | tr -d ' ')
 echo "Zipped $dir -> $out ($((size / 1024)) KB)"
-if [ "$size" -gt 524288000 ]; then
-  echo "That is over YouGame's 500 MB limit; the upload page will refuse it." >&2
+if [ "$size" -gt 5368709120 ]; then
+  echo "That is over YouGame's 5 GB limit; the upload page will refuse it." >&2
 fi
 echo "Upload it at https://yougame.co/upload (drag the zip onto the page)."
 
