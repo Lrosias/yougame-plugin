@@ -2,10 +2,7 @@
   "mcpServers": {
     "yougame": {
       "type": "http",
-      "url": "https://yougame.co/mcp",
-      "headers": {
-        "Authorization": "Bearer ${YOUGAME_API_KEY:-}"
-      }
+      "url": "https://yougame.co/mcp"
     }
   }
 }

@@ -5,9 +5,9 @@ its own origin with a leaderboard, a player, and a listing. No review queue, no 
 
 This repo is the plugin that teaches your coding agent to get a game onto YouGame: make it
 static and self-contained, add the leaderboard, run the same pre-upload checks the upload
-page runs, and hand you a zip that is ready to drop — or, with an API key from your
-account, upload it, fill in the whole listing, and hand you a review link where you press
-Publish.
+page runs, and hand you a zip that is ready to drop — or, once you have signed in to the
+MCP connection (it asks when it connects), upload it, fill in the whole listing, and hand you
+a review link where you press Publish.
 
 ## Claude Code
 
@@ -62,15 +62,18 @@ project to get the same workflow without asking for it.
 | `get_sdk_reference` | Leaderboards, phone support, online multiplayer, ratings, persistent worlds, coins. |
 | `check_build` | The upload page's checks over a folder: `ready`, `risky`, or `broken`, with the reasons. |
 | `search` / `fetch` | One answer out of the docs instead of 40 KB of markdown. |
-| `prepare_submission` / `my_games` | With your API key: fill in the whole listing of a staged build (zip posted to `/api/agent/upload`) and get the review link; list your games. |
+| `upload_token` / `prepare_submission` / `my_games` | Signed in: a bearer token for the upload, then fill in the whole listing of a staged build (zip posted to `/api/agent/upload`) and get the review link; list your games. |
 | `publish_game` / `update_game` | `publish_game` skips the review and refuses unless you explicitly told the agent to publish without reviewing; `update_game` ships a new build of a game that is already up. |
 | Prompts | `make_yougame_ready` and `publish_to_yougame` (one prompt built from what the creator wants: `leaderboard`, `multiplayer`, `worlds`, `phones` yes/no, and the `paywalls` rows), plus `add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer`, `add_world` for a game that is already up. |
 
-Reading and checking is public: no account, no token, no key. Publishing is yours: either
-drop the zip at https://yougame.co/upload, or make an API key at
-https://yougame.co/account (Coding agents), `export YOUGAME_API_KEY=yg_…`, and the plugin's
-MCP connection carries it so `/yougame:publish` finishes with a review link: every field
-filled in, and the Publish button yours.
+When the MCP connects it asks you to sign in: run `/mcp` in Claude Code, pick **yougame**,
+and Authenticate; the browser opens YouGame, you press Allow, done. From then on
+`/yougame:publish` finishes with a review link: every field filled in, and the Publish
+button yours. Signed out, it still hands you a zip to drop at https://yougame.co/upload.
+Prefer a key (curl, CI)? Make one at https://yougame.co/account (Coding agents) and
+`export YOUGAME_API_KEY=yg_…` before starting Claude Code for the upload step, and connect
+the MCP with it as the `Authorization: Bearer` header (`claude mcp add --transport http
+yougame https://yougame.co/mcp --header "Authorization: Bearer $YOUGAME_API_KEY"`).
 
 ## What is in here
 

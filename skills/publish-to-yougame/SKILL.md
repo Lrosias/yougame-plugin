@@ -1,6 +1,6 @@
 ---
 name: publish-to-yougame
-description: Turn a browser game into a build that runs on YouGame and get it ready to upload, or, with the creator's API key, upload it, fill in the whole listing, and hand the creator a review link — the static build contract, the leaderboard SDK, the pre-upload checks, the zip, and the prepare_submission step. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
+description: Turn a browser game into a build that runs on YouGame and get it ready to upload, or, with the creator signed in to the YouGame MCP (or their API key), upload it, fill in the whole listing, and hand the creator a review link — the static build contract, the leaderboard SDK, the pre-upload checks, the zip, and the prepare_submission step. Use when the user wants to publish, ship, upload, or post a game to YouGame, asks to make a game YouGame-ready, or hits errors from YouGame's checks or upload page.
 ---
 
 # Publishing a game on YouGame
@@ -88,17 +88,24 @@ one short message:
 - what you added (leaderboard or not, and why), and anything `check_build` warned about but
   you left alone.
 
-## 6. Fill in the submission, when the creator gave you a key
+## 6. Fill in the submission, when the creator is signed in
 
-If `YOUGAME_API_KEY` is set in the environment (the creator made it at
-https://yougame.co/account → Coding agents), take the submission all the way to the
-creator's final click instead of handing over a zip:
+If the YouGame MCP connection is signed in (the server asks for it when the MCP connects:
+the creator signs in to YouGame in the browser and presses Allow; in Claude Code that is
+`/mcp` → yougame → Authenticate), or `YOUGAME_API_KEY` is set in the environment (a key the
+creator made at https://yougame.co/account → Coding agents), take the submission all the
+way to the creator's final click instead of handing over a zip. Signed in without a key,
+call the `upload_token` tool first: it returns a bearer token good for thirty minutes, and
+that is the token for the upload below (the connection's own token is never shown to you).
 
 ```bash
 curl -sS -X POST https://yougame.co/api/agent/upload \
-  -H "Authorization: Bearer $YOUGAME_API_KEY" -H "Content-Type: application/zip" \
+  -H "Authorization: Bearer <the upload token, or $YOUGAME_API_KEY>" -H "Content-Type: application/zip" \
   --data-binary @<the zip>
 ```
+
+If the MCP answers that it needs the creator signed in, tell the creator to authenticate the
+connection (or make a key) rather than stopping at the zip.
 
 The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict`, and the
 `report`. If the verdict is `broken`, fix, zip, upload again.
