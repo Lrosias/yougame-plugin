@@ -29,9 +29,10 @@ in the reference before adding anything:
 
 - **Runs that end with a score** (arcade, endless, wave survival, puzzle scores, distance):
   the points leaderboard below.
-- **Runs against the clock** (a speedrun, a level or puzzle to finish fast): a time board,
-  fastest first, which YouGame cannot show yet. Keep the game's own results screen, never
-  turn the time into points, and tell the creator the board is waiting on YouGame.
+- **Runs against the clock** (a speedrun, a level or puzzle to finish fast): the time board,
+  fastest first, runs shown as times. The same `gameOver` call with the run's milliseconds,
+  and the creator sets the leaderboard to Time (`score_kind: "time"` in the listing). Never
+  turn a time into points.
 - **Head-to-head** (chess, checkers, card duels, fighting games, any versus game): the
   ranked ladder that comes with online multiplayer, shown on the game page with no drawing
   code. Only ranked matches feed it and players sit on the casual queue by default, so pass
@@ -46,6 +47,14 @@ in the reference before adding anything:
 `YouGame.gameOver(score, { onRestart })` when a run ends. Non-negative integers, higher is
 better. The SDK draws the game-over overlay, the rank reveal, and the beat-my-score link,
 so remove the game's own game-over screen rather than stacking two.
+
+For a game against the clock the call is `YouGame.gameOver(elapsedMs, { onRestart })` with
+the finished run's length in milliseconds (`Math.round(performance.now() - startedAt)`), and
+the creator sets the leaderboard to Time on the upload form or the game's leaderboard
+settings (`score_kind: "time"` when the listing is filled in by an agent). The board then
+ranks fastest first and shows every run as a time (`1:23.45`); the SDK learns the kind when it
+connects. `YouGame.init({ scoreKind: "time" })` makes the local test board behave the same
+way before publishing. Post finished runs only: a death or a reset is not a time.
 
 ## Saves
 

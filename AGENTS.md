@@ -10,11 +10,13 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    game whose runs end with a score gets the points leaderboard:
    `<script src="https://yougame.co/sdk.js"></script>` and
    `YouGame.gameOver(score, { onRestart })` when a run ends, non-negative integers, higher
-   is better. A game against the clock ranks by time, which the board cannot show yet:
-   keep its own results screen and say so. A head-to-head game (chess, a fighter) gets no
-   leaderboard; the ranked ladder that comes with online multiplayer is its board
-   (`findMatch` with `ranked: true`), and without online multiplayer the honest result is
-   no board at all: say so. Never invent points so a game can have a board.
+   is better. A game against the clock gets the time board: the same call with the run's
+   milliseconds, `YouGame.gameOver(elapsedMs, { onRestart })`, and the listing's leaderboard
+   set to Time (`score_kind: "time"`), so runs rank fastest first and read as times; never
+   turn a time into points. A head-to-head game (chess, a fighter) gets no leaderboard; the
+   ranked ladder that comes with online multiplayer is its board (`findMatch` with
+   `ranked: true`), and without online multiplayer the honest result is no board at all:
+   say so. Never invent points so a game can have a board.
 3. Saves, online multiplayer, paywalls, and phone controls are opt-in: add them only when
    the creator asks. Saves are `YouGame.load()` at start (Continue when it returns data)
    and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the

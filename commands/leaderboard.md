@@ -10,10 +10,12 @@ A game whose runs end with a score gets the points board: add
 `YouGame.gameOver(score, { onRestart })` when a run ends, with the SDK's overlay replacing
 the game's own game-over screen. Scores are non-negative integers, higher is better.
 
-A game against the clock ranks by time, which the board cannot show yet: keep its own
-results screen and say so. A head-to-head game gets no leaderboard: its board is the ranked
-ladder that comes with online multiplayer (`findMatch` with `ranked: true`), and without
-online multiplayer the honest result is no board at all: say so. Never invent points so a
-game can have a board.
+A game against the clock gets the time board, fastest first: call
+`YouGame.gameOver(elapsedMs, { onRestart })` with the run's length in milliseconds, and tell
+the creator to set the leaderboard to "Time" in the game's leaderboard settings on YouGame
+(`score_kind: "time"` when you fill in the listing yourself); never turn a time into points.
+A head-to-head game gets no leaderboard: its board is the ranked ladder that comes with
+online multiplayer (`findMatch` with `ranked: true`), and without online multiplayer the
+honest result is no board at all: say so. Never invent points so a game can have a board.
 
 Change nothing else about how the game plays.

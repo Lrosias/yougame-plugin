@@ -37,9 +37,9 @@ the metric the game's players already talk about ("Which board fits the game" in
 reference is the rule):
 
 - runs that end with a score (arcade, endless, puzzle scores, distance): the points board;
-- runs against the clock (a speedrun, a level to finish fast): a time board, which YouGame
-  cannot show yet. Keep the game's own results screen, never turn the time into points, and
-  tell the creator the board is waiting on YouGame;
+- runs against the clock (a speedrun, a level to finish fast): the time board, fastest
+  first. `YouGame.gameOver(elapsedMs, { onRestart })` with the run's milliseconds, and the
+  listing's leaderboard set to Time (`score_kind: "time"`); never turn a time into points;
 - head-to-head (chess, a fighter, a duel): no leaderboard. The ranked ladder that comes with
   online multiplayer is its board (`findMatch` with `ranked: true`; players sit on the
   casual queue by default), and a bot mode is practice. Without online multiplayer, the
@@ -56,9 +56,10 @@ For the points board, two lines:
 YouGame.gameOver(score, { onRestart: () => startGame() });
 ```
 
-Scores are non-negative integers and higher is better. Let the SDK's overlay be the
-game-over screen instead of the game's own. If the game has no score at all, say so and
-move on; do not invent one.
+Scores are non-negative integers and higher is better; on a time board the number is the
+run in milliseconds and lower is better. Let the SDK's overlay be the game-over screen
+instead of the game's own. If the game has no score at all, say so and move on; do not
+invent one.
 
 **Online multiplayer**, coins and paywalls, and phone controls are opt-in: add them only when
 the user asks. When they ask for multiplayer, two people on two different computers is the
@@ -126,7 +127,8 @@ The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict
 
 Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
 title, a one-paragraph description written from the game, up to three genres, the controls,
-`play_mode`, `mobile` (only if it really plays with touch), `mature`, `max_score` when the game
+`play_mode`, `mobile` (only if it really plays with touch), `mature`, `score_kind` (`time` when
+the build posts a run's milliseconds to `gameOver`, else `points`), `max_score` when the game
 has a natural ceiling, a `paywalls` row for every key the build charges, `notes` saying what you
 decided and assumed, and a thumbnail. You know the game; decide from it, and suggest rather
 than leave blanks. Ask the creator, before calling, about the things the game itself cannot
