@@ -1,6 +1,6 @@
 ---
 name: yougame-sdk
-description: Add YouGame SDK features to a game — leaderboards and beat-my-score links, saves that let a player resume on any device, touch controls that qualify for the phone listing, online multiplayer with matchmaking and rematches, ratings, and coins. Use when the user asks for a leaderboard, high scores, save games or continue, online or head-to-head play, phone support, or anything else from the YouGame SDK.
+description: Add YouGame SDK features to a game — leaderboards and beat-my-score links, saves that let a player resume on any device, one control scheme for keyboard, controllers, and phones (YouGame.input) that qualifies for the phone listing, online multiplayer with matchmaking and rematches, ratings, and coins. Use when the user asks for a leaderboard, high scores, save games or continue, online or head-to-head play, phone support, touch or controller support, or anything else from the YouGame SDK.
 ---
 
 # The YouGame SDK
@@ -17,7 +17,7 @@ for one answer, e.g. `search("rematch")`. Read the relevant section before writi
 the API details change faster than this skill does.
 
 Each feature also exists as an MCP prompt you can run instead of re-deriving the work:
-`add_leaderboard`, `add_saves`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer`; and
+`add_leaderboard`, `add_saves`, `add_paywalls`, `make_playable_on_phones`, `add_controls`, `add_multiplayer`; and
 `make_yougame_ready` takes them all as yes/no arguments (plus the creator's paywall rows) when
 the game is being made ready in one go.
 
@@ -66,14 +66,38 @@ checkpoints, level clears, and the menu. Keep the state a small plain JSON objec
 browser copy every time and sends it to the player's account on YouGame, so a signed-in
 player picks up on any device. Check the shape of what comes back before restoring from it.
 
-## Phones
+## Controls and phones (`YouGame.input`)
+
+One call gives the game the keyboard, any controller, and, on phones, an on-screen stick and
+buttons the SDK draws; the game reads one state object and never asks which device it came
+from. Read "Controls" in the reference before wiring it.
+
+```js
+const input = YouGame.input.setup({ preset: "stick-ab", labels: { a: "Jump", b: "Fire" } });
+// each frame:
+const s = input.state;            // move.x / move.y in -1..1 (down positive), a, b held
+if (input.pressed("a")) jump();   // once per press
+```
+
+- Presets: `stick-ab` (default), `stick-abxy`, `dpad-ab`, `dpad-abxy`, `twin-stick`,
+  `buttons`. Enable **only the buttons the game uses** with `buttons: ["a"]` and so on; a
+  button that is not enabled is not drawn, not bound, and never true. Do not leave X, Y, L1,
+  R1, L2, R2 on for a game that does not use them.
+- Label buttons with what they do (`labels`), and place custom buttons by fractions of the
+  screen (`custom: [{ id, label, x, y, keys, pad }]`) when the actions are the game's own
+  (abilities, items). Replace the game's old key handling with the state object rather than
+  running both.
+- Menus, text, and direct touch play (tap a tile, drag a piece, aim by dragging) stay the
+  game's own pointer handling; `input.hide()` / `show()` around menus under the overlay. A
+  game played entirely by direct touch keeps `YouGame.input` with `touch: false` for keys and
+  controllers.
 
 The listing has a "Works on phones" filter, and a game qualifies only if the whole thing
-plays by touch: `pointerdown`/`pointerup` (or touch events) for every action, on-screen
-controls where the game needs them, no keyboard, no hover, no right-click, tap targets of
-44 px or more, `<meta name="viewport" content="width=device-width, initial-scale=1">`, and
-default prevented so the page never scrolls or zooms mid-game. Keep the canvas sized to the
-window in both orientations. Keyboard and mouse play must keep working on computers.
+plays by touch: the overlay for the controls, `pointerdown`/`pointerup` for everything else,
+no hover, no right-click, tap targets of 44 px or more,
+`<meta name="viewport" content="width=device-width, initial-scale=1">`, and default
+prevented so the page never scrolls or zooms mid-game. Keep the canvas sized to the window
+in both orientations. Keyboard and mouse play must keep working on computers.
 
 ## Online multiplayer
 

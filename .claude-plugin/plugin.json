@@ -1,11 +1,11 @@
 {
   "name": "yougame",
   "displayName": "YouGame",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Turn the game you are building into a YouGame build: the publish rules, the leaderboard SDK, the pre-upload checks, and a zip that is ready to drop on the upload page.",
   "author": { "name": "YouGame", "url": "https://yougame.co" },
   "homepage": "https://yougame.co/plugin",
   "repository": "https://github.com/Lrosias/yougame-plugin",
   "license": "MIT",
-  "keywords": ["games", "gamedev", "html5", "leaderboard", "multiplayer", "worlds", "publishing", "yougame"]
+  "keywords": ["games", "gamedev", "html5", "leaderboard", "multiplayer", "worlds", "controls", "touch", "gamepad", "publishing", "yougame"]
 }

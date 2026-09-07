@@ -28,7 +28,7 @@ Then, in the project that holds your game:
 ```
 
 Other commands: `/yougame:check` (just the checks), `/yougame:leaderboard`,
-`/yougame:saves`, `/yougame:phones`, `/yougame:multiplayer`, `/yougame:world` (a persistent shared world for co-op and creative games; the agent states its limits first). The two skills — `publish-to-yougame` and
+`/yougame:saves`, `/yougame:phones`, `/yougame:controls` (one scheme for keyboard, controllers, and phones), `/yougame:multiplayer`, `/yougame:world` (a persistent shared world for co-op and creative games; the agent states its limits first). The two skills — `publish-to-yougame` and
 `yougame-sdk` — also fire on their own when you say what you want ("get this game on
 YouGame", "add a leaderboard").
 
@@ -65,7 +65,7 @@ project to get the same workflow without asking for it.
 | `search` / `fetch` | One answer out of the docs instead of 40 KB of markdown. |
 | `upload_token` / `prepare_submission` / `my_games` | Signed in: a bearer token for the upload, then fill in the whole listing of a staged build (zip posted to `/api/agent/upload`) and get the review link; list your games. |
 | `publish_game` / `update_game` | `publish_game` skips the review and refuses unless you explicitly told the agent to publish without reviewing; `update_game` ships a new build of a game that is already up. |
-| Prompts | `make_yougame_ready` and `publish_to_yougame` (one prompt built from what the creator wants: `leaderboard`, `multiplayer`, `worlds`, `phones` yes/no, and the `paywalls` rows), plus `add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_multiplayer`, `add_world` for a game that is already up. |
+| Prompts | `make_yougame_ready` and `publish_to_yougame` (one prompt built from what the creator wants: `leaderboard`, `multiplayer`, `worlds`, `phones` yes/no, and the `paywalls` rows), plus `add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_controls`, `add_multiplayer`, `add_world` for a game that is already up. |
 
 When the MCP connects it asks you to sign in: run `/mcp` in Claude Code, pick **yougame**,
 and Authenticate; the browser opens YouGame, you press Allow, done. From then on
@@ -82,7 +82,7 @@ yougame https://yougame.co/mcp --header "Authorization: Bearer $YOUGAME_API_KEY"
 .claude-plugin/   plugin.json and the one-plugin marketplace manifest
 .mcp.json         the YouGame MCP server, connected when the plugin is enabled
 skills/           publish-to-yougame, yougame-sdk
-commands/         /yougame:publish, :check, :leaderboard, :phones, :multiplayer, :world
+commands/         /yougame:publish, :check, :leaderboard, :saves, :phones, :controls, :multiplayer, :world
 scripts/          zip-build.sh — zips the folder's contents the way the upload page wants
 ```
 
