@@ -4,7 +4,8 @@
 its own origin with a leaderboard, a player, and a listing. No review queue, no build step.
 
 This repo is the plugin that teaches your coding agent to get a game onto YouGame: make it
-static and self-contained, add the leaderboard, run the same pre-upload checks the upload
+static and self-contained, add the leaderboard where one fits, run the same pre-upload checks
+the upload
 page runs, and hand you a zip that is ready to drop — or, once you have signed in to the
 MCP connection (it asks when it connects), upload it, fill in the whole listing, and hand you
 a review link where you press Publish.

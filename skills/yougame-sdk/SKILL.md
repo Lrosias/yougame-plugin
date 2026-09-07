@@ -21,12 +21,31 @@ Each feature also exists as an MCP prompt you can run instead of re-deriving the
 `make_yougame_ready` takes them all as yes/no arguments (plus the creator's paywall rows) when
 the game is being made ready in one go.
 
+## Which board fits the game
+
+Not every game gets a leaderboard, and a leaderboard is not always a points board. Rank by
+the metric the game's players already talk about, and read "Which board fits the game"
+in the reference before adding anything:
+
+- **Runs that end with a score** (arcade, endless, wave survival, puzzle scores, distance):
+  the points leaderboard below.
+- **Runs against the clock** (a speedrun, a level or puzzle to finish fast): a time board,
+  fastest first, which YouGame cannot show yet. Keep the game's own results screen, never
+  turn the time into points, and tell the creator the board is waiting on YouGame.
+- **Head-to-head** (chess, checkers, card duels, fighting games, any versus game): the
+  ranked ladder that comes with online multiplayer, shown on the game page with no drawing
+  code. Only ranked matches feed it and players sit on the casual queue by default, so pass
+  `ranked: true` to `findMatch`. No `gameOver`: a mode against a bot is practice, and wins
+  against a bot are not a score. If the creator did not pick online multiplayer, the honest
+  result is no board: say so.
+- **No natural end or metric** (story, sandbox, creative, co-op building, a toy): nothing.
+  Never invent points so a game can have a board.
+
 ## Leaderboard
 
 `YouGame.gameOver(score, { onRestart })` when a run ends. Non-negative integers, higher is
-better; convert timed games so faster is a bigger number. The SDK draws the game-over
-overlay, the rank reveal, and the beat-my-score link, so remove the game's own game-over
-screen rather than stacking two. This is the one feature worth adding to every game.
+better. The SDK draws the game-over overlay, the rank reveal, and the beat-my-score link,
+so remove the game's own game-over screen rather than stacking two.
 
 ## Saves
 

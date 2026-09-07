@@ -30,9 +30,23 @@ referenced by a relative path. In particular:
 - Vite, Godot, Unity, Phaser, p5, plain canvas: all fine. Build with a relative base
   (`base: "./"` in Vite) so nothing points at `/assets/…`.
 
-## 3. Add the leaderboard
+## 3. Add the board that fits
 
-This is what makes it a YouGame game rather than a page. Two lines:
+Not every game gets a leaderboard, and a leaderboard is not always a points board. Rank by
+the metric the game's players already talk about ("Which board fits the game" in the SDK
+reference is the rule):
+
+- runs that end with a score (arcade, endless, puzzle scores, distance): the points board;
+- runs against the clock (a speedrun, a level to finish fast): a time board, which YouGame
+  cannot show yet. Keep the game's own results screen, never turn the time into points, and
+  tell the creator the board is waiting on YouGame;
+- head-to-head (chess, a fighter, a duel): no leaderboard. The ranked ladder that comes with
+  online multiplayer is its board (`findMatch` with `ranked: true`; players sit on the
+  casual queue by default), and a bot mode is practice. Without online multiplayer, the
+  honest result is no board: say so;
+- no natural end or metric: nothing. Never invent points so a game can have a board.
+
+For the points board, two lines:
 
 ```html
 <script src="https://yougame.co/sdk.js"></script>
@@ -42,9 +56,9 @@ This is what makes it a YouGame game rather than a page. Two lines:
 YouGame.gameOver(score, { onRestart: () => startGame() });
 ```
 
-Scores are non-negative integers and higher is better — convert timed games so faster is a
-bigger number. Let the SDK's overlay be the game-over screen instead of the game's own.
-If the game has no score at all, say so and move on; do not invent one.
+Scores are non-negative integers and higher is better. Let the SDK's overlay be the
+game-over screen instead of the game's own. If the game has no score at all, say so and
+move on; do not invent one.
 
 **Online multiplayer**, coins and paywalls, and phone controls are opt-in: add them only when
 the user asks. When they ask for multiplayer, two people on two different computers is the
