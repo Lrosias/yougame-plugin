@@ -40,11 +40,15 @@ reference is the rule):
 - runs against the clock (a speedrun, a level to finish fast): the time board, fastest
   first. `YouGame.gameOver(elapsedMs, { onRestart })` with the run's milliseconds, and the
   listing's leaderboard set to Time (`score_kind: "time"`); never turn a time into points;
-- head-to-head (chess, a fighter, a duel): no leaderboard. The ranked ladder that comes with
-  online multiplayer is its board (`findMatch` with `ranked: true`; players sit on the
-  casual queue by default), and a bot mode is practice. Without online multiplayer, the
+- head-to-head (chess, a fighter, a duel): no leaderboard, `score_kind: "none"` in the
+  listing. The ranked ladder that comes with online multiplayer is its board (`findMatch`
+  with `ranked: true`; players sit on the casual queue by default), shown on the game page
+  where a leaderboard would sit, and a bot mode is practice. Without online multiplayer, the
   honest result is no board: say so;
-- no natural end or metric: nothing. Never invent points so a game can have a board.
+- no natural end or metric: nothing, `score_kind: "none"`. Never invent points so a game can
+  have a board.
+
+A leaderboard is optional and `"none"` is a normal answer, not a gap.
 
 For the points board, two lines:
 

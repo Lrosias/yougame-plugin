@@ -15,7 +15,11 @@ A game against the clock gets the time board, fastest first: call
 the creator to set the leaderboard to "Time" in the game's leaderboard settings on YouGame
 (`score_kind: "time"` when you fill in the listing yourself); never turn a time into points.
 A head-to-head game gets no leaderboard: its board is the ranked ladder that comes with
-online multiplayer (`findMatch` with `ranked: true`), and without online multiplayer the
-honest result is no board at all: say so. Never invent points so a game can have a board.
+online multiplayer (`findMatch` with `ranked: true`), shown on the game page where a
+leaderboard would sit, and without online multiplayer the honest result is no board at all:
+say so. Either way tell the creator to set the leaderboard to "None" in the game's
+leaderboard settings (`score_kind: "none"` when you fill in the listing yourself) — a
+leaderboard is optional, and no board is a normal answer. Never invent points so a game can
+have a board.
 
 Change nothing else about how the game plays.

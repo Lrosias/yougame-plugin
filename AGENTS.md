@@ -22,7 +22,9 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the
    player's account. When they ask for multiplayer, two people on two different computers is
    the bar: `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`, a
-   host-authoritative round, `room.finish({ winner })`, rounds started from the room's
+   host-authoritative round with `room.hostSync` (Pattern C, `room.lockstep` or `room.rollback`,
+   for fighters and other versus games where every player must feel the same delay),
+   `room.finish({ winner })`, rounds started from the room's
    `ready` event, `leave` / `close` handled. A versus or co-op game becomes an online room
    directly; a single-player game becomes a race from the same seed, each player seeing the
    other's progress. Local seats and bots do not count, and rooms never mix humans with

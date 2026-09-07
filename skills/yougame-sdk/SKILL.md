@@ -36,11 +36,14 @@ in the reference before adding anything:
 - **Head-to-head** (chess, checkers, card duels, fighting games, any versus game): the
   ranked ladder that comes with online multiplayer, shown on the game page with no drawing
   code. Only ranked matches feed it and players sit on the casual queue by default, so pass
-  `ranked: true` to `findMatch`. No `gameOver`: a mode against a bot is practice, and wins
-  against a bot are not a score. If the creator did not pick online multiplayer, the honest
+  `ranked: true` to `findMatch`, and set `score_kind: "none"` in the listing so the game page
+  shows the ladder where a leaderboard would sit. No `gameOver`: a mode against a bot is
+  practice, and wins against a bot are not a score. If the creator did not pick online multiplayer, the honest
   result is no board: say so.
-- **No natural end or metric** (story, sandbox, creative, co-op building, a toy): nothing.
-  Never invent points so a game can have a board.
+- **No natural end or metric** (story, sandbox, creative, co-op building, a toy): nothing,
+  `score_kind: "none"`. Never invent points so a game can have a board.
+
+A leaderboard is optional and `"none"` is a normal answer, not a gap.
 
 ## Leaderboard
 
@@ -113,6 +116,12 @@ play, if the game has it, is the single-player mode.
 friend invites, ratings, and the result card are the platform's job. The game's job is the
 host-authoritative loop — host simulates, others send inputs, host broadcasts state at
 20–30 Hz with positions as fractions of the playfield, everyone calls `room.finish({ winner })`.
+`room.hostSync({ hz, input, step, snapshot })` does that plumbing (sequenced inputs, acks,
+snapshot interpolation through `net.view()`, host handover). A fighter, platform fighter, or
+any versus game where every player must feel the same delay uses Pattern C instead: a
+deterministic simulation on every client (fixed step, `YouGame.rng(room.seed)`, no clock or
+`Math.random` in game logic) driven by `room.lockstep(...)`, or `room.rollback(...)` with
+`save`/`load` for offline-feeling controls; the SDK doc's "Pattern C" section has the contract.
 
 Two things agents get wrong: start every round from the room's `ready` event (it fires for
 round one and again after each rematch — never build your own rematch handshake), and
