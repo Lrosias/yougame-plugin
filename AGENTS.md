@@ -16,7 +16,11 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    turn a time into points. A head-to-head game (chess, a fighter) gets no leaderboard; the
    ranked ladder that comes with online multiplayer is its board (`findMatch` with
    `ranked: true`), and without online multiplayer the honest result is no board at all:
-   say so. Never invent points so a game can have a board.
+   say so. Never invent points so a game can have a board. Who sees a board is the creator's
+   call, not code: three switches on YouGame (the everyone leaderboard, the friends
+   leaderboard with the same scores narrowed to each player's friends, and the ranked
+   ladder), passed as `leaderboard`, `friends_board`, and `ladder` beside `score_kind` when
+   you fill in the listing; all on by default.
 3. Saves, online multiplayer, paywalls, and phone controls are opt-in: add them only when
    the creator asks. Saves are `YouGame.load()` at start (Continue when it returns data)
    and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the
