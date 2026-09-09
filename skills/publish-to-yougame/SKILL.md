@@ -176,6 +176,17 @@ notified and the home feed features it for a week; `minor` for fixes and small c
 silent; default `minor`), and `notes` (patch notes for players). The link, the origin, the
 scores and the comments stay. Never delete and re-publish a game to update it.
 
+**Remixing someone else's game** goes through `remix_game` with that game's `slug`, never
+through a fresh upload: it copies the game's current build as a new game of the creator's,
+under the terms its creator set (shown at `/g/<slug>/remix`: a fee in gold, whether the remix
+may charge, a royalty, whether it may be merged back). Tell the creator the terms and any fee
+before calling. The reply has the new slug and a download link for its build (`GET` it with
+the same Authorization header); change the build and ship it with `update_game` on the new
+slug. Keep every `YouGame.coins.charge` call the build has: the original's paywalls stay in
+the remix and pay its creator, and an update that drops one is refused. Every published build
+is watermarked, and uploading a build that carries another creator's mark as a new game is
+refused. A creator's own remix terms are the `remix` listing field.
+
 Without a key, the upload is the creator's step: it needs their account, and the zip is
 drag and drop on the upload page.
 
