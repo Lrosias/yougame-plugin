@@ -69,6 +69,17 @@ ranks fastest first and shows every run as a time (`1:23.45`); the SDK learns th
 connects. `YouGame.init({ scoreKind: "time" })` makes the local test board behave the same
 way before publishing. Post finished runs only: a death or a reset is not a time.
 
+## Sharing and account actions
+
+`YouGame.createScoreShare(score, { context })` creates an unranked score link for everyone,
+including guests. Prepare it before the share click, then call `YouGame.share` with its URL.
+`username` is null for guests: use “I scored…” rather than inventing an account handle.
+Never gate sharing on login. Optional Sign in buttons call `YouGame.auth.signIn()` to open
+YouGame's sign-in page and return to this game; `YouGame.auth.signedIn` is available after
+`ready()`. Save progress before navigation. The promise acknowledges navigation, not a
+completed login. Platform actions belong in the SDK: use its entry points for sign-in,
+controls, online play and leaderboards, rather than duplicating YouGame UI inside a game.
+
 ## Saves
 
 A game with progress worth keeping (levels, unlocks, a run longer than one sitting) should
