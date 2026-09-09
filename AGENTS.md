@@ -25,7 +25,7 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    the creator asks. Saves are `YouGame.load()` at start (Continue when it returns data)
    and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the
    player's account. When they ask for multiplayer, two people on two different computers is
-   the bar: `YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })`, a
+   the bar: `YouGame.multiplayer.open({ players: 2, mode: "duel" })`, a
    host-authoritative round with `room.hostSync` (Pattern C, `room.lockstep` or `room.rollback`,
    for fighters and other versus games where every player must feel the same delay),
    `room.finish({ winner })`, rounds started from the room's
@@ -33,11 +33,17 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    directly; a single-player game becomes a race from the same seed, each player seeing the
    other's progress. Local seats and bots do not count, and rooms never mix humans with
    bots (bot play stays in single-player).
+   YouGame owns the online UI: embedded Casual/Ranked/Friends buttons add `queue: "casual"`,
+   `"ranked"`, or `"friends"` to `open`; do not hide its UI. Finish clearly labelled game
+   setup before those buttons. Follow "Online menu integration" and the complete example at
+   https://yougame.co/examples/online-menu.html. Test actual controls and hosted two-identity
+   Ready/results/rematches/invites; local Friends does not verify the signed-in picker.
 4. Run the pre-upload checks on the finished folder and fix what they report until the
    verdict is `ready`: the `check_build` tool if the YouGame MCP
    (`https://yougame.co/mcp`) is connected, otherwise POST
    `{ "files": [{ "path": "index.html", "size": 1234, "text": "…" }] }` to
-   https://yougame.co/api/check-build.
+   https://yougame.co/api/check-build. These are static checks only; report runtime evidence
+   and untested flows separately.
 5. Zip the folder's *contents* (not the folder) and tell the creator the path. They upload
    it at https://yougame.co/upload; the listing needs a 16:9 thumbnail.
 6. When the YouGame MCP connection is signed in (it asks for that when it connects; the

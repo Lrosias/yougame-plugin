@@ -127,11 +127,21 @@ YouGame. A versus or co-op game becomes an online room directly; a single-player
 a race — both players start the same run from the same seed at the same moment, each sees the
 other's progress, and whoever is ahead when the round ends wins. Local seats and bots filling
 empty slots are not multiplayer here, and rooms never mix the two: a room holds people only
-(2 to 10 seats), starts when its last seat fills, and has no partial start and no bots. Bot
+(2 to 10 seats), starts when every seat is full and everyone is Ready, and has no partial start and no bots. Bot
 play, if the game has it, is the single-player mode.
 
-`YouGame.multiplayer.findMatch({ players: 2, mode: "duel" })` gets a room: matchmaking,
-friend invites, ratings, and the result card are the platform's job. The game's job is the
+YouGame owns the multiplayer interface. Follow "Online menu integration" in
+https://yougame.co/sdk.md and the runnable example at
+https://yougame.co/examples/online-menu.html. Game menu buttons call
+`YouGame.multiplayer.open({ players: 2, mode: "duel" })` for Online, or add
+`queue: "casual"`, `"ranked"`, or `"friends"` for direct entry. Use the same mode for all.
+Complete clearly labelled fighter/loadout setup before showing these buttons; each button
+then opens the relevant YouGame UI immediately. Keep YouGame's searching, friends picker,
+lobby, Ready, results/Continue, cancel and error UI. Do not use `ui: false` just to embed
+buttons. `findMatch` is the lower-level API for an explicitly requested fully custom UI.
+Incoming invitations must join the existing room without another picker.
+
+The game's job is the
 host-authoritative loop — host simulates, others send inputs, host broadcasts state at
 20–30 Hz with positions as fractions of the playfield, everyone calls `room.finish({ winner })`.
 `room.hostSync({ hz, input, step, snapshot })` does that plumbing (sequenced inputs, acks,
@@ -180,5 +190,8 @@ build against them.
 ## After any of these
 
 Re-run the pre-upload checks (`check_build`, or the `publish-to-yougame` skill's loop)
-before telling the user it is done — the checks look at the SDK tag and at what the game
-actually calls.
+before telling the user it is done. These checks scan static files and SDK references; they
+do not execute the game. Test the actual menu buttons, cancel/retry, Ready, results, rematch,
+and invitation entry in the hosted player with two designated test identities. Local Friends
+only creates a link and does not test the signed-in friends picker or persistent ratings.
+Report build checks separately from runtime evidence, and name untested flows.
