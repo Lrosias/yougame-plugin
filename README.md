@@ -91,3 +91,18 @@ Docs, prompts and checks all live on the server, so the plugin stays current wit
 update: https://yougame.co/publish.md, https://yougame.co/sdk.md, https://yougame.co/plugin.
 
 MIT licensed. Issues and pull requests welcome.
+
+## Live verification before submission
+
+After staging a build, call the YouGame MCP's `start_test_session` with `uploadId`,
+`listing` (at least the title and the intended board/play/phone settings), `players: 2`
+and `relationships: "friends"` (or `"strangers"` to test friend requests). It returns
+private, expiring login links for disposable players on an isolated YouGame test site.
+Open each in a separate browser context/profile; tabs alone share login cookies.
+Use actual controls to test desktop and phone play, social interactions and, when present,
+two-player matchmaking, Friends invites, Ready, results, rematches and disconnects.
+Record screenshots/traces and outcomes with `record_test_evidence`, then call `test_report`
+before `prepare_submission`. Static readiness and backend counts do not prove good UX.
+Reports are bound to the build files and listing settings; changed builds must be retested.
+Report untested flows honestly (payments and voice are disabled in this test environment).
+Call `close_test_session` when finished; sessions otherwise expire after two hours.
