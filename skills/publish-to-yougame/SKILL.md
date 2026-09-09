@@ -127,17 +127,21 @@ way to the creator's final click instead of handing over a zip. Signed in withou
 call the `upload_token` tool first: it returns a bearer token good for thirty minutes, and
 that is the token for the upload below (the connection's own token is never shown to you).
 
+Set `YOUGAME_UPLOAD_TOKEN` to that token (or use `YOUGAME_API_KEY`), then run with Node 22+:
+
 ```bash
-curl -sS -X POST https://yougame.co/api/agent/upload \
-  -H "Authorization: Bearer <the upload token, or $YOUGAME_API_KEY>" -H "Content-Type: application/zip" \
-  --data-binary @<the zip>
+node "${CLAUDE_PLUGIN_ROOT}/scripts/upload-build.mjs" <build-folder>
 ```
+
+This uses the website's shared streaming upload routes and limits: 5 GB total, 100 MB per
+file, 5,000 files. It applies the same path fixes locally and checks all uploaded files before
+returning. Unzip archives locally first; do not send large ZIPs to the legacy agent endpoint.
 
 If the MCP answers that it needs the creator signed in, tell the creator to authenticate the
 connection (or make a key) rather than stopping at the zip.
 
 The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict`, and the
-`report`. If the verdict is `broken`, fix, zip, upload again.
+`report`. If the verdict is `broken`, fix the build and upload again.
 
 Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
 title, a one-paragraph description written from the game, up to three genres, the controls,

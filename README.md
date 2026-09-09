@@ -63,7 +63,7 @@ project to get the same workflow without asking for it.
 | `get_sdk_reference` | Leaderboards, phone support, online multiplayer, ratings, persistent worlds, coins. |
 | `check_build` | The upload page's checks over a folder: `ready`, `risky`, or `broken`, with the reasons. |
 | `search` / `fetch` | One answer out of the docs instead of 40 KB of markdown. |
-| `upload_token` / `prepare_submission` / `my_games` | Signed in: a bearer token for the upload, then fill in the whole listing of a staged build (zip posted to `/api/agent/upload`) and get the review link; list your games. |
+| `upload_token` / `prepare_submission` / `my_games` | Signed in: a bearer token for the upload, then fill in the whole listing of a staged build (files streamed through the website’s `/api/upload/*` routes; 5 GB total, 100 MB per file) and get the review link; list your games. |
 | `publish_game` / `update_game` | `publish_game` skips the review and refuses unless you explicitly told the agent to publish without reviewing; `update_game` ships a new build of a game that is already up. |
 | Prompts | `make_yougame_ready` and `publish_to_yougame` (one prompt built from what the creator wants: `leaderboard`, `multiplayer`, `worlds`, `phones` yes/no, and the `paywalls` rows), plus `add_leaderboard`, `add_paywalls`, `make_playable_on_phones`, `add_controls`, `add_multiplayer`, `add_world` for a game that is already up. |
 
@@ -83,7 +83,8 @@ yougame https://yougame.co/mcp --header "Authorization: Bearer $YOUGAME_API_KEY"
 .mcp.json         the YouGame MCP server, connected when the plugin is enabled
 skills/           publish-to-yougame, yougame-sdk
 commands/         /yougame:publish, :check, :leaderboard, :saves, :phones, :controls, :multiplayer, :world
-scripts/          zip-build.sh — zips the folder's contents the way the upload page wants
+scripts/          upload-build.mjs — streams a local build through the shared upload routes
+                  zip-build.sh — packages a build for manual browser upload
 ```
 
 Docs, prompts and checks all live on the server, so the plugin stays current without an

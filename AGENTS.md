@@ -48,8 +48,12 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    it at https://yougame.co/upload; the listing needs a 16:9 thumbnail.
 6. When the YouGame MCP connection is signed in (it asks for that when it connects; the
    `upload_token` tool then gives a bearer token for the upload) or `YOUGAME_API_KEY` is set
-   (made at https://yougame.co/account → Coding agents): POST the zip to
-   https://yougame.co/api/agent/upload with that token, then call `prepare_submission` (or POST
+   (made at https://yougame.co/account → Coding agents): run the plugin's
+   `node scripts/upload-build.mjs <build-folder>` with `YOUGAME_UPLOAD_TOKEN` or
+   `YOUGAME_API_KEY` set (Node 22+). Without the plugin download the helper from
+   https://yougame.co/upload-build.mjs. It uses the website's streaming routes with the same
+   5 GB total / 100 MB per-file / 5,000-file limits and returns the uploadId and check report.
+   Unzip locally first. Then call `prepare_submission` (or POST
    https://yougame.co/api/agent/draft) with every listing field filled in from the game —
    title, description, genres, controls, play mode, phones, mature, max score, paywall prices,
    a thumbnail (from the build, or one you make and PUT to /api/agent/media). Ask the creator
