@@ -30,21 +30,22 @@ referenced by a relative path. In particular:
 - Vite, Godot, Unity, Phaser, p5, plain canvas: all fine. Build with a relative base
   (`base: "./"` in Vite) so nothing points at `/assets/…`.
 
-Keep game HUD, menus, and hit targets out of YouGame's host button areas, even for games
-using no SDK features: reserve **192 × 60 CSS px at the player's bottom-right on desktop**
-(embedded and fullscreen) and embedded phone play, and **192 × 60 CSS px at the game's
-top-left in phone fullscreen, plus device safe-area insets**. Exiting phone fullscreen
-keeps the game running with buttons at bottom-right. The phone fullscreen row follows
-CSS rotation when the SDK reports it;
-a 90° turn makes the screen-space reservation 60 × 192 px. Without that report it stays
-at the physical top-left. Narrow desktop windows and desktop-mode tablets can still use
-the desktop row; reserve both corners, including on phones, unless the layout tracks
-host mode and fullscreen state. Read
+Keep game HUD, menus and hit targets clear of the host controls using
+`YouGame.ui.getLayout()` and `YouGame.ui.onChange(callback)`. The SDK reports actual
+reserved rectangles and conservative edge insets in iframe CSS pixels, including the
+YouGame button's badge, attention ring and device safe-area offset. For a CSS-rotated
+canvas or game root use `getLayout(surfaceElement)`; re-read after orientation, resize,
+fullscreen and surface-layout changes (`await YouGame.ui.refresh()`). The SDK does not
+move your HUD automatically. While status is pending/unsupported, or without this API,
+reserve 192 × 60 CSS px at bottom-right for desktop and embedded phones, and 72 × 72 CSS
+px plus device safe-area offsets at top-left for phone fullscreen. The phone button
+follows CSS quarter-turns; initially it is at physical top-left. Reserve both fallback
+corners unless tracking mode; phone detection is not a width breakpoint. Read
 [Reserved screen areas: YouGame buttons](https://yougame.co/sdk.md#reserved-screen-areas-yougame-buttons)
-for exact offsets, rotation and additional SDK touch-control zones. Custom buttons must
-clear those areas by their full bounds. `input.hide()` hides touch controls, not the host
-row. Verify the hosted player on desktop and phones in both orientations; `check_build`
-does not check runtime overlaps.
+for coordinate mapping, CSS variables and additional SDK touch-control capture zones.
+Custom controls must clear reservations by their full bounds. `input.hide()` does not
+hide host controls. Verify desktop embedded/fullscreen and phones in portrait and
+landscape, including leaving fullscreen; `check_build` cannot verify runtime overlaps.
 
 ## 3. Add the board that fits
 
