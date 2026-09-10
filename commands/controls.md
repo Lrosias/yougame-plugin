@@ -13,3 +13,13 @@ actions are the game's own. Replace the old key handling with the state object. 
 local multiplayer passes `players: N` and reads `YouGame.input.players[i].state` per seat;
 never poll `navigator.getGamepads()` or build a remap screen (the site's Controls panel does
 that). Keep everything else working exactly as before.
+
+For timing-sensitive games, pass `sampling: "manual"` and call `input.sample()` immediately
+before each original simulation frame. Rollback replays recorded frame input. Use
+`input.prompt(action, seat)` for the controller's printed button labels.
+
+Read the controller device API in sdk.md before adding special hardware: `YouGame.controllers`
+provides platform-owned GameCube input with raw stick bytes and separate analog triggers/digital
+clicks. `connect()` opens platform Controls; the host Connect button obtains browser consent.
+Keep game-specific conversions explicit, and never put raw GameCube data through the normal
+action mapper. Browser support, real-device compatibility and latency require separate checks.
