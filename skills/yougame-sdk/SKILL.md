@@ -178,6 +178,13 @@ any versus game where every player must feel the same delay uses Pattern C inste
 deterministic simulation on every client (fixed step, `YouGame.rng(room.seed)`, no clock or
 `Math.random` in game logic) driven by `room.lockstep(...)`, or `room.rollback(...)` with
 `save`/`load` for offline-feeling controls; the SDK doc's "Pattern C" section has the contract.
+For a worker/native engine whose operations return Promises, use `room.rollbackAsync`: awaited
+`save`/`load`/`step`, opaque local checkpoints, a separate per-frame state checksum, replay flags
+and confirmed-frame outputs. Start with `maxRollback: 0` and a small agreed `delay` to test
+buffered play without checkpoint costs; enable rollback only when save/replay performance
+permits it. Commit match results once from `confirmed` output. Await `stop()` before reusing
+the engine. Read "Asynchronous rollback and buffered play" in the live SDK reference for
+startup, native-adapter and browser/native determinism requirements.
 
 Two things agents get wrong: start every round from the room's `ready` event (it fires for
 round one and again after each rematch — never build your own rematch handshake), and
