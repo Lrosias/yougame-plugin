@@ -14,30 +14,21 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    milliseconds, `YouGame.gameOver(elapsedMs, { onRestart })`, and the listing's leaderboard
    set to Time (`score_kind: "time"`), so runs rank fastest first and read as times; never
    turn a time into points. A head-to-head game (chess, a fighter) gets no leaderboard; the
-   ranked ladder that comes with online multiplayer is its board (`findMatch` with
-   `ranked: true`), and without online multiplayer the honest result is no board at all:
+   ranked ladder that comes with online multiplayer is its board (`joinLobby` with
+   `queue: "ranked"`), and without online multiplayer the honest result is no board at all:
    say so. Never invent points so a game can have a board. Who sees a board is the creator's
    call, not code: three switches on YouGame (the everyone leaderboard, the friends
    leaderboard with the same scores narrowed to each player's friends, and the ranked
    ladder), passed as `leaderboard`, `friends_board`, and `ladder` beside `score_kind` when
    you fill in the listing; all on by default.
-3. Saves, online multiplayer, paywalls, and phone controls are opt-in: add them only when
-   the creator asks. Saves are `YouGame.load()` at start (Continue when it returns data)
-   and `YouGame.save(state)` at checkpoints; the SDK keeps them in the browser and on the
-   player's account. When they ask for multiplayer, two people on two different computers is
-   the bar: `YouGame.multiplayer.open({ players: 2, mode: "duel" })`, a
-   host-authoritative round with `room.hostSync` (Pattern C, `room.lockstep` or `room.rollback`,
-   for fighters and other versus games where every player must feel the same delay),
-   `room.finish({ winner })`, rounds started from the room's
-   `ready` event, `leave` / `close` handled. A versus or co-op game becomes an online room
-   directly; a single-player game becomes a race from the same seed, each player seeing the
-   other's progress. Local seats and bots do not count, and rooms never mix humans with
-   bots (bot play stays in single-player).
-   YouGame owns the online UI: embedded Casual/Ranked/Friends buttons add `queue: "casual"`,
-   `"ranked"`, or `"friends"` to `open`; do not hide its UI. Finish clearly labelled game
-   setup before those buttons. Follow "Online menu integration" and the complete example at
-   https://yougame.co/examples/online-menu.html. Test actual controls and hosted two-identity
-   Ready/results/rematches/invites; local Friends does not verify the signed-in picker.
+3. Saves, online multiplayer, paywalls and phone controls are opt-in. Saves use
+   `YouGame.load()` and `YouGame.save(state)`. For online, read the new `joinLobby` contract
+   in https://yougame.co/sdk.md: join before setup, map participant slots to game ports,
+   let the game own Ready/Start, keep late arrivals for the next game, and report individual
+   games plus the final match. Private lobbies can mix local and remote humans. Use native
+   invitations/local-player claims/Leave; keep game-specific UI inside the game. Test the
+   hosted flow with two identities and actual keyboard/touch controls.
+
 4. Run the pre-upload checks on the finished folder and fix what they report until the
    verdict is `ready`: the `check_build` tool if the YouGame MCP
    (`https://yougame.co/mcp`) is connected, otherwise POST

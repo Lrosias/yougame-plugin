@@ -36,7 +36,7 @@ in the reference before adding anything:
 - **Head-to-head** (chess, checkers, card duels, fighting games, any versus game): the
   ranked ladder that comes with online multiplayer, shown on the game page with no drawing
   code. Only ranked matches feed it and players sit on the casual queue by default, so pass
-  `ranked: true` to `findMatch`, and set `score_kind: "none"` in the listing so the game page
+  `queue: "ranked"` to `joinLobby`, and set `score_kind: "none"` in the listing so the game page
   shows the ladder where a leaderboard would sit. No `gameOver`: a mode against a bot is
   practice, and wins against a bot are not a score. If the creator did not pick online multiplayer, the honest
   result is no board: say so.
@@ -150,30 +150,16 @@ in both orientations. Keyboard and mouse play must keep working on computers.
 
 ## Online multiplayer
 
-Every game that can take it should have it: it is the biggest reason a game spreads on
-YouGame. A versus or co-op game becomes an online room directly; a single-player game becomes
-a race — both players start the same run from the same seed at the same moment, each sees the
-other's progress, and whoever is ahead when the round ends wins. Local seats and bots filling
-empty slots are not multiplayer here, and rooms never mix the two: a room holds people only
-(2 to 10 seats), starts when every seat is full and everyone is Ready, and has no partial start and no bots. Bot
-play, if the game has it, is the single-player mode.
+YouGame provides membership, invitations, matchmaking, local participant claims, Leave, transport, and result recording. The game owns its playable lobby: character/loadout choices, Ready, Start, rules, results presentation, and rematches. Connect before game setup with YouGame.multiplayer.joinLobby({ queue: "friends", players: 4, minPlayers: 2, maxLocalPlayers: 4, mode: "duel", compatibility: "my-game-v1" }); Casual/Ranked use their queue name, players: 2 and maxLocalPlayers: 1. The promise resolves on joining, while you may still be alone. Use the same mode and compatible build identifier across choices. Render room.participants as stable player ports, using slot for the game port and connectionId/localIndex for input ownership. One device can claim multiple private-lobby ports through YouGame's lobby controls. Empty ports stay empty; bots are game-owned and never masquerade as YouGame members. The game decides when to start and calls room.beginMatch({ revision: room.revision }) to record its participant snapshot and get a common seed; no platform Ready barrier or requirement to fill capacity. Begin does not lock membership: late arrivals and local claims remain in the live lobby for the next game, while room.matchParticipants and room.matchConnections stay fixed for current inputs/results. Bind the ready event before calling beginMatch, and start simulation once from that event. A late joiner waits in the game lobby. The game owns series rules and reports each game with room.reportGame({ id: "game-1", winner: participantId }); call room.completeMatch({ winner: participantId }) once for the whole match. Ranked completion records one rated match and closes the room; private/casual may stay together. Counterpicks, bans, characters, and best-of-three logic never go into YouGame UI. Handle leave/close and restore a usable game menu; show room.showLobby() for native invite/local-player/Leave controls. After YouGame.ready(), an incoming multiplayer.invite should enter Friends automatically, without another picker; joinLobby consumes that invitation once. Test actual buttons with keyboard/touch, two hosted identities, mixed local/remote ports, late joins, cancellation/retry, per-game reports, final results and ranked departure. Static build checks do not prove these flows. Legacy open/findMatch keep their old platform Ready lifecycle for existing games; use joinLobby for new integrations.
 
-YouGame owns the multiplayer interface. Follow "Online menu integration" in
-https://yougame.co/sdk.md and the runnable example at
-https://yougame.co/examples/online-menu.html. Game menu buttons call
-`YouGame.multiplayer.open({ players: 2, mode: "duel" })` for Online, or add
-`queue: "casual"`, `"ranked"`, or `"friends"` for direct entry. Use the same mode for all.
-Complete clearly labelled fighter/loadout setup before showing these buttons; each button
-then opens the relevant YouGame UI immediately. Keep YouGame's searching, friends picker,
-lobby, Ready, results/Continue, cancel and error UI. Do not use `ui: false` just to embed
-buttons. `findMatch` is the lower-level API for an explicitly requested fully custom UI.
-Incoming invitations must join the existing room without another picker.
+Read the Multiplayer section of https://yougame.co/sdk.md for method/event details.
 
 The game's job is the
 host-authoritative loop — host simulates, others send inputs, host broadcasts state at
-20–30 Hz with positions as fractions of the playfield, everyone calls `room.finish({ winner })`.
+20–30 Hz with positions as fractions of the playfield, every active connection reports each game and completes the final match.
 `room.hostSync({ hz, input, step, snapshot })` does that plumbing (sequenced inputs, acks,
-snapshot interpolation through `net.view()`, host handover). A fighter, platform fighter, or
+snapshot interpolation through `net.view()`). The active match keeps its original host;
+handle a departed host according to the game’s disconnect rules. A fighter, platform fighter, or
 any versus game where every player must feel the same delay uses Pattern C instead: a
 deterministic simulation on every client (fixed step, `YouGame.rng(room.seed)`, no clock or
 `Math.random` in game logic) driven by `room.lockstep(...)`, or `room.rollback(...)` with
@@ -186,11 +172,10 @@ permits it. Commit match results once from `confirmed` output. Await `stop()` be
 the engine. Read "Asynchronous rollback and buffered play" in the live SDK reference for
 startup, native-adapter and browser/native determinism requirements.
 
-Two things agents get wrong: start every round from the room's `ready` event (it fires for
-round one and again after each rematch — never build your own rematch handshake), and
-handle `leave` and `close` so a player who quits does not freeze the others. Auto-start
-online mode when `YouGame.multiplayer.invite` is set. Single-player must keep working
-exactly as before.
+Bind the room's `ready` event before the game calls `beginMatch`, and initialize each
+match only once. The game coordinates subsequent games in a series and its own rematch
+flow. Handle `leave` and `close`; an unrelated late arrival or departure must not change
+active inputs. Auto-enter Friends on an incoming invite. Keep single-player working.
 
 ## Persistent worlds
 

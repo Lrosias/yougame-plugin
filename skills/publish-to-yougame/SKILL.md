@@ -93,15 +93,11 @@ instead of the game's own. If the game has no score at all, say so and move on; 
 invent one.
 
 **Online multiplayer**, coins and paywalls, and phone controls are opt-in: add them only when
-the user asks. When they ask for multiplayer, two people on two different computers is the
-bar. A game with versus or co-op becomes an online room directly; a single-player game
-becomes a race — both players start the same run from the same seed at the same moment, each
-sees the other's progress, and whoever is ahead when the round ends wins. Local seats,
-hot-seat play, and bots filling empty slots do not count, and rooms never mix humans with
-bots: a room holds people only, starts when its last seat fills, and has no partial start.
-Bot play stays in single-player. Follow the `yougame-sdk` skill (or `get_sdk_reference` /
-https://yougame.co/sdk.md) for the contract, and tell the user if you skipped something they
-asked for and why.
+the user asks. When they ask for multiplayer, support real remote players, optionally
+alongside multiple local humans in private lobbies. YouGame assigns participants to ports;
+the game owns setup, Ready, Start, rules, and rematches. Use `multiplayer.joinLobby` before
+setup; late arrivals wait for the next game without disrupting the active snapshot. Follow
+the `yougame-sdk` skill and https://yougame.co/sdk.md. Report any omitted requested flow.
 
 ## 4. Check it, and fix what it says
 
@@ -162,7 +158,9 @@ The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict
 
 Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
 title, a one-paragraph description written from the game, up to three genres, the controls,
-`play_mode`, `mobile` (only if it really plays with touch), `mature`, `score_kind` (`time` when
+`play_mode`, `mobile` (only if it really plays with touch), `mature`, `visibility` (`private`
+when the creator wants a private launch: testers only, nothing lists the game, invite links and
+the public launch on its Manage page; else leave it out), `score_kind` (`time` when
 the build posts a run's milliseconds to `gameOver`, else `points`), `max_score` when the game
 has a natural ceiling, a `paywalls` row for every key the build charges, `notes` saying what you
 decided and assumed, and a thumbnail. You know the game; decide from it, and suggest rather
