@@ -223,3 +223,13 @@ do not execute the game. Test the actual menu buttons, cancel/retry, Ready, resu
 and invitation entry in the hosted player with two designated test identities. Local Friends
 only creates a link and does not test the signed-in friends picker or persistent ratings.
 Report build checks separately from runtime evidence, and name untested flows.
+
+
+## Speedruns and ghosts
+
+For multiple speedrun categories, read the Speedrun categories and ghost challenges section
+of the live SDK reference. Declare categories in root `yougame.json`; use
+`YouGame.speedruns.start(category)` and the returned `run.submit(elapsedMs, { replay })`.
+`getChallenge()` loads a shared run; createRecorder/createPlayback handle bounded input logs.
+The game handles deterministic simulation or state snapshots and ghost rendering. Never
+mix distinct category runs into the default `gameOver` leaderboard.
