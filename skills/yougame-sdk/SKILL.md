@@ -154,6 +154,14 @@ YouGame provides membership, invitations, matchmaking, local participant claims,
 
 Read the Multiplayer section of https://yougame.co/sdk.md for method/event details.
 
+Voice chat is the site's (friends in a match, from the lobby) and needs no game code. A game
+with a map can make it proximity chat when the creator asks: call
+`YouGame.voice.proximity({ me: { x, y }, players: { [playerId]: { x, y } }, range, near, stereo })`
+whenever positions change (every frame is fine; the SDK throttles). `YouGame.voice.levels({ [id]: 0..1 })`
+is the plain form for team channels or walls, and `YouGame.voice.talking` /
+`YouGame.voice.on("talking", ids => …)` drives a speaking mark. It never changes who may hear
+whom (friends, and everyone in a friends room); see "Proximity chat" in the reference.
+
 The game's job is the
 host-authoritative loop — host simulates, others send inputs, host broadcasts state at
 20–30 Hz with positions as fractions of the playfield, every active connection reports each game and completes the final match.
