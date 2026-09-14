@@ -212,8 +212,10 @@ If any of that rules the game out, say so and stop rather than building around i
 
 ## Coins
 
-Tips and coin matches need no game code. Paid items and paywalls are switched off for now; do not
-build against them.
+Tips need no game code. Purchases and tips use Gold, which players buy; spending Gold creates
+creator earnings. Silver, daily grants, gifts, and coin matches are disabled for launch: do not
+promote or build flows around them. Paywalls are opt-in and priced by the creator on YouGame;
+read the current Coins section of https://yougame.co/sdk.md before implementing them.
 
 ## After any of these
 
