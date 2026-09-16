@@ -227,6 +227,15 @@ only creates a link and does not test the signed-in friends picker or persistent
 Report build checks separately from runtime evidence, and name untested flows.
 
 
+## Input recording and replays
+
+`YouGame.replay.record()` at the start of a run and `rec.stop()` at its end give a replay of
+every input by simulation frame (the seats of `YouGame.input`, raw key, pointer and wheel events,
+the seeds behind `YouGame.rng()` and `Math.random`); `YouGame.replay.play(replay)` recreates the
+run in another session and `save(replay)` returns a watch link (`?watch=<id>`). Exact with a
+`YouGame.fixedStep` loop or `clock: "tick"`; a game stepping by wall-clock dt will drift. Read the
+Input recording and replays section of https://yougame.co/sdk.md.
+
 ## Speedruns and ghosts
 
 For multiple speedrun categories, read the Speedrun categories and ghost challenges section
