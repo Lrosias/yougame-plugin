@@ -3,16 +3,48 @@
 // scripts/upload-build.mjs
 import { createReadStream } from "node:fs";
 import { readdir, stat, readFile, writeFile, mkdtemp, rm } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { basename, dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 
+// src/lib/base-game.ts
+var ROM_PATCH_FORMATS = ["ips", "bps", "ups", "xdelta"];
+function isRomPatchFormat(v) {
+  return typeof v === "string" && ROM_PATCH_FORMATS.includes(v);
+}
+function romPatchFormatOf(path) {
+  const m = /\.([a-z0-9]+)$/i.exec(path);
+  const ext = m ? m[1].toLowerCase() : "";
+  if (ext === "xdelta" || ext === "xdelta3" || ext === "vcdiff") return "xdelta";
+  return isRomPatchFormat(ext) ? ext : null;
+}
+function romPatchIn(paths) {
+  const patches = paths.filter((p) => romPatchFormatOf(p));
+  if (patches.length !== 1) return null;
+  return { file: patches[0], format: romPatchFormatOf(patches[0]) };
+}
+var MAX_BASE_FILE_BYTES = 128 * 1024 * 1024;
+var MAX_DISC_BYTES = 9 * 1024 * 1024 * 1024;
+var BASE_DATA_EXTENSIONS = ["z64", "n64", "v64", "n64z", "sfc", "smc", "fig", "swc", "gba", "agb", "smd", "gen", "32x", "sms", "gg", "iso", "gcm", "gcz", "rvz", "wbfs", "wia", "ciso", "chd", "gdi", "cdi", "cso", "pbp", "nds", "3ds", "cia"];
+var BASE_DATA_EXT_RE = new RegExp(`\\.(${BASE_DATA_EXTENSIONS.join("|")})$`, "i");
+
+// src/lib/speedruns.ts
+var MAX_REPLAY_BYTES = 1024 * 1024;
+var MAX_RUN_MS = 6 * 60 * 60 * 1e3;
+
 // src/lib/coins.ts
 var MAX_ITEM_MINUTES = 60 * 24 * 366;
-var PAYOUT_CENTS_PER_1000_GOLD = 48;
+var PAYOUT_CENTS_PER_1000_GOLD = 55;
+var MIN_PAYOUT_GOLD = Math.ceil(2500 * 1e3 / PAYOUT_CENTS_PER_1000_GOLD);
 var MAX_PAYOUT_CENTS = 5e4;
 var MAX_PAYOUT_GOLD = Math.floor(MAX_PAYOUT_CENTS * 1e3 / PAYOUT_CENTS_PER_1000_GOLD);
+
+// node_modules/@opennextjs/cloudflare/dist/api/cloudflare-context.js
+var cloudflareContextSymbol = Symbol.for("__cloudflare-context__");
+
+// src/lib/server-lite.ts
+var MAX_SERVER_MODULE_BYTES = 1024 * 1024;
 
 // src/lib/site.ts
 var MB = 1024 * 1024;
@@ -217,7 +249,10 @@ function fixCss(css, path) {
 }
 
 // src/lib/upload-files.ts
-function validateUploadFiles(value) {
+function isPatchOnly(paths) {
+  return paths.length === 1 && !!romPatchIn(paths);
+}
+function validateUploadFiles(value, opts = {}) {
   if (!Array.isArray(value) || !value.length) return { error: "No files" };
   if (value.length > MAX_FILES) return { error: `Too many files (max ${MAX_FILES})` };
   let total = 0;
@@ -235,14 +270,21 @@ function validateUploadFiles(value) {
     total += f.size;
     files.push({ path: f.path, size: f.size });
   }
-  if (!seen.has("index.html")) return { error: "Build must contain index.html at the top level" };
+  const pkg = !!opts.package || isPatchOnly([...seen]);
+  if (!seen.has("index.html") && !pkg) return { error: "Build must contain index.html at the top level. A ROM hack is one .ips, .ups, .bps or .xdelta file and nothing else; a mod's package is declared with package: true." };
   if (total > MAX_UPLOAD_BYTES) return { error: "Build is over 5 GB unzipped" };
-  return { files, total };
+  return { files, total, package: pkg };
 }
 
 // scripts/upload-build.mjs
-async function prepareFiles(directory, scratch) {
+async function prepareFiles(directory, scratch, opts = {}) {
   const paths = [];
+  const target = await stat(directory);
+  if (target.isFile()) {
+    if (!romPatchFormatOf(basename(directory))) throw new Error("Point at a build folder, or at a ROM hack's one patch file (.ips, .ups, .bps or .xdelta).");
+    paths.push(basename(directory));
+    directory = dirname(directory);
+  }
   async function walk(relative = "") {
     for (const entry2 of await readdir(join(directory, relative), { withFileTypes: true })) {
       const path = relative ? `${relative}/${entry2.name}` : entry2.name;
@@ -254,10 +296,11 @@ async function prepareFiles(directory, scratch) {
       else throw new Error(`Not a regular file: ${path}`);
     }
   }
-  await walk();
+  if (!target.isFile()) await walk();
   const build = buildFolder(paths);
   const { entry } = entryPage(build.paths);
-  if (!entry) throw new Error("Point at the finished build folder with index.html (or one top-level HTML page).");
+  const pkg = !entry && (opts.package === true || isPatchOnly(build.paths));
+  if (!entry && !pkg) throw new Error("Point at the finished build folder with index.html (or one top-level HTML page), at a ROM hack's one patch file (.ips, .ups, .bps or .xdelta), or pass --package for a mod's folder.");
   const prefix = build.folder ? `${build.folder}/` : "";
   const files = [];
   for (const path of build.paths) {
@@ -271,11 +314,11 @@ async function prepareFiles(directory, scratch) {
     }
     files.push({ path: stored, size: (await stat(local)).size, local });
   }
-  const checked = validateUploadFiles(files);
+  const checked = validateUploadFiles(files, { package: pkg });
   if ("error" in checked) throw new Error(checked.error);
-  return files;
+  return { files, package: pkg };
 }
-async function uploadBuild(directory, { token = process.env.YOUGAME_UPLOAD_TOKEN || process.env.YOUGAME_API_KEY, site = process.env.YOUGAME_URL || "https://yougame.co" } = {}) {
+async function uploadBuild(directory, { token = process.env.YOUGAME_UPLOAD_TOKEN || process.env.YOUGAME_API_KEY, site = process.env.YOUGAME_URL || "https://yougame.co", package: packageOpt = false } = {}) {
   if (!token) throw new Error("Set YOUGAME_UPLOAD_TOKEN from the MCP upload_token tool, or YOUGAME_API_KEY.");
   const base = new URL(site);
   if (base.username || base.password || base.protocol !== "https:" && !(base.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(base.hostname))) throw new Error("Use HTTPS, or localhost for development.");
@@ -288,9 +331,9 @@ async function uploadBuild(directory, { token = process.env.YOUGAME_UPLOAD_TOKEN
   }
   const scratch = await mkdtemp(join(tmpdir(), "yougame-upload-"));
   try {
-    const files = await prepareFiles(resolve(directory), scratch);
-    const start = await json("/api/upload/start", { files: files.map(({ path, size }) => ({ path, size })) });
-    console.error(`Upload ${start.uploadId}: streaming ${files.length} files.`);
+    const { files, package: pkg } = await prepareFiles(resolve(directory), scratch, { package: packageOpt });
+    const start = await json("/api/upload/start", { files: files.map(({ path, size }) => ({ path, size })), ...pkg ? { package: true } : {} });
+    console.error(`Upload ${start.uploadId}: streaming ${files.length} ${pkg ? "package " : ""}${files.length === 1 ? "file" : "files"}.`);
     const queue = [...files];
     let failure;
     async function worker() {
@@ -331,12 +374,15 @@ async function uploadBuild(directory, { token = process.env.YOUGAME_UPLOAD_TOKEN
   }
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 3 || process.argv[2].startsWith("--")) {
-    console.error("Usage: node upload-build.mjs <build-folder> (Node 22+). Set YOUGAME_UPLOAD_TOKEN or YOUGAME_API_KEY.");
+  const args = process.argv.slice(2);
+  const packageOpt = args.includes("--package");
+  const targets = args.filter((a) => a !== "--package");
+  if (targets.length !== 1 || targets[0].startsWith("--")) {
+    console.error("Usage: node upload-build.mjs [--package] <build-folder | patch-file> (Node 22+). Set YOUGAME_UPLOAD_TOKEN or YOUGAME_API_KEY. A ROM hack is its one .ips/.ups/.bps/.xdelta file; --package stages a mod's folder.");
     process.exitCode = 2;
   } else {
     try {
-      const result = await uploadBuild(process.argv[2]);
+      const result = await uploadBuild(targets[0], { package: packageOpt });
       console.log(JSON.stringify(result, null, 2));
       if (result.verdict === "broken") process.exitCode = 1;
     } catch (error) {

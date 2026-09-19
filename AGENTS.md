@@ -44,7 +44,9 @@ friends) the YouGame workflow. Claude Code users get the same thing from the plu
    `YOUGAME_API_KEY` set (Node 22+). Without the plugin download the helper from
    https://yougame.co/upload-build.mjs. It uses the website's streaming routes with the same
    5 GB total / 100 MB per-file / 5,000-file limits and returns the uploadId and check report.
-   Unzip locally first. Then call `prepare_submission` (or POST
+   Unzip locally first. A ROM hack is its one .ips/.ups/.bps/.xdelta file, no index.html: pass
+   the file itself and it is staged as a package (kind "patch" on the listing); a mod's folder
+   takes `--package`. Then call `prepare_submission` (or POST
    https://yougame.co/api/agent/draft) with every listing field filled in from the game —
    title, description, genres, controls, play mode, phones, mature, max score, paywall prices,
    a thumbnail (from the build, or one you make and PUT to /api/agent/media). Ask the creator

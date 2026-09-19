@@ -148,6 +148,41 @@ no hover, no right-click, tap targets of 44 px or more,
 prevented so the page never scrolls or zooms mid-game. Keep the canvas sized to the window
 in both orientations. Keyboard and mouse play must keep working on computers.
 
+The flag covers iPads and Android tablets too, and Play there is the whole experience: a
+game flagged by mistake is unplayable for everyone it is shown to. What usually breaks the
+claim, to check before `mobile: true`:
+
+- **Keys only**: `keydown`/`keyup` and nothing a finger can press. Every action through
+  `YouGame.input` or a pointer/touch handler; a typing game needs a focused text field so the
+  on-screen keyboard opens.
+- **Mouse only**: `mousemove`/`mousedown` without pointer or touch handlers, hover to reveal,
+  right-click for a secondary action. Pointer events, a long-press or a button for the
+  secondary action, never hover.
+- **Layout computed once**: brick columns, grid cells and button rectangles measured at load
+  and never again, so fullscreen, a rotation or a resize leaves the board in one corner with
+  empty space beside it. Re-run the layout on `resize`, `orientationchange` and
+  `fullscreenchange`, scale what is on screen, rebuild hit targets from the current size.
+- **A fixed-size or fixed-aspect canvas** that overflows a portrait phone or an iPad, or one
+  sized by CSS only that blurs: size from `innerWidth`/`innerHeight` both ways, scale for
+  `devicePixelRatio`.
+- **Menus that need a key** ("press 2", "press R", Esc to leave): a tappable control of at
+  least 44 px for every menu action.
+- **The page reacts to the finger** (double-tap zoom, pinch, pull-to-refresh, selection, the
+  long-press callout): `touch-action: none`, `user-select: none`,
+  `-webkit-touch-callout: none` on the game surface, `preventDefault` in touch handlers.
+- **Silent audio**: resume the `AudioContext` in the first tap.
+- **Tablets**: an iPad sends a desktop user agent; never decide touch from the user agent or a
+  width breakpoint. Pointer events, `(pointer: coarse)`, `navigator.maxTouchPoints`, and a
+  layout for 768 to 1024 px wide as well as 390.
+- **HUD or buttons under the host's corner button** or the SDK's stick and buttons (above).
+
+Then verify before claiming it: run the build at 390×844 and 844×390 with touch emulation
+(Chrome device mode, or a phone) and at 1024×768 (an iPad), tap through every menu, play a
+round with the on-screen controls, enter and leave fullscreen and rotate, and check that
+nothing sits off screen and the page never scrolls sideways. `check_build` only reads the
+source and reports which input kinds it found; a keyboard-only or mouse-only build cannot
+qualify. If you cannot run it on a touch screen or an emulator, say so and leave the flag off.
+
 ## Online multiplayer
 
 YouGame provides membership, invitations, matchmaking, local participant claims, Leave, transport, and result recording. The game owns its playable lobby: character/loadout choices, Ready, Start, rules, results presentation, and rematches. Connect before game setup with YouGame.multiplayer.joinLobby({ queue: "friends", players: 4, minPlayers: 2, maxLocalPlayers: 4, mode: "duel", compatibility: "my-game-v1" }); Casual/Ranked use their queue name, players: 2 and maxLocalPlayers: 1. The promise resolves on joining, while you may still be alone. Use the same mode and compatible build identifier across choices. Render room.participants as stable player ports, using slot for the game port and connectionId/localIndex for input ownership. One device can claim multiple private-lobby ports through YouGame's lobby controls. Empty ports stay empty; bots are game-owned and never masquerade as YouGame members. The game decides when to start and calls room.beginMatch({ revision: room.revision }) to record its participant snapshot and get a common seed; no platform Ready barrier or requirement to fill capacity. Begin does not lock membership: late arrivals and local claims remain in the live lobby for the next game, while room.matchParticipants and room.matchConnections stay fixed for current inputs/results. Bind the ready event before calling beginMatch, and start simulation once from that event. A late joiner waits in the game lobby. The game owns series rules and reports each game with room.reportGame({ id: "game-1", winner: participantId }); call room.completeMatch({ winner: participantId }) once for the whole match. Ranked completion records one rated match and closes the room; private/casual may stay together. Counterpicks, bans, characters, and best-of-three logic never go into YouGame UI. Handle leave/close and restore a usable game menu; show room.showLobby() for native invite/local-player/Leave controls. After YouGame.ready(), an incoming multiplayer.invite should enter Friends automatically, without another picker; joinLobby consumes that invitation once. Test actual buttons with keyboard/touch, two hosted identities, mixed local/remote ports, late joins, cancellation/retry, per-game reports, final results and ranked departure. Static build checks do not prove these flows. Legacy open/findMatch keep their old platform Ready lifecycle for existing games; use joinLobby for new integrations.
@@ -227,14 +262,16 @@ only creates a link and does not test the signed-in friends picker or persistent
 Report build checks separately from runtime evidence, and name untested flows.
 
 
-## Input recording and replays
+## Replays
 
-`YouGame.replay.record()` at the start of a run and `rec.stop()` at its end give a replay of
-every input by simulation frame (the seats of `YouGame.input`, raw key, pointer and wheel events,
-the seeds behind `YouGame.rng()` and `Math.random`); `YouGame.replay.play(replay)` recreates the
-run in another session and `save(replay)` returns a watch link (`?watch=<id>`). Exact with a
-`YouGame.fixedStep` loop or `clock: "tick"`; a game stepping by wall-clock dt will drift. Read the
-Input recording and replays section of https://yougame.co/sdk.md.
+`YouGame.replay.record({ state: () => world })` at the start of a run and `rec.stop()` at its
+end record what happened, frame by frame (keyframes plus deltas of the game's own world object);
+`YouGame.replay.play(replay, { apply: (s) => Object.assign(world, s) })` plays it back in place
+of the game's update, with pause and seek, and `save(replay)` returns a watch link (`?watch=<id>`,
+delivered to the game through `YouGame.replay.on("request")`). This works for any game, however
+nondeterministic. `record()` without `state` records inputs instead: tiny and exact, but only for
+a deterministic game (the emulator runtime, rollback games). Read the Replays section of
+https://yougame.co/sdk.md.
 
 ## Speedruns and ghosts
 

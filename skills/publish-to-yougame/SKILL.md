@@ -150,6 +150,12 @@ This uses the website's shared streaming upload routes and limits: 5 GB total, 1
 file, 5,000 files. It applies the same path fixes locally and checks all uploaded files before
 returning. Unzip archives locally first; do not send large ZIPs to the legacy agent endpoint.
 
+A ROM hack is not a build: its upload is the one `.ips`, `.ups`, `.bps` or `.xdelta` file and
+no `index.html`. Hand the helper the patch file itself and it is staged as a package (steps 2,
+4 and 5 do not apply: there is no page to check or zip); the listing is `kind: "patch"` with the
+base game's accepted dumps, and the site's emulator applies the patch to the player's own copy.
+A mod's package (`kind: "mod"`) is a folder of its files, staged with `--package`.
+
 If the MCP answers that it needs the creator signed in, tell the creator to authenticate the
 connection (or make a key) rather than stopping at the zip.
 
@@ -158,7 +164,7 @@ The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict
 
 Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
 title, a one-paragraph description written from the game, up to three genres, the controls,
-`play_mode`, `mobile` (only if it really plays with touch), `mature`, `visibility` (`private`
+`play_mode`, `mobile` (only after you played the whole game by touch, at phone and iPad sizes, in and out of fullscreen: phones and iPads list only games with it on, and the check report's input kinds say whether the source can take touch at all; not sure, `false` and say why in `notes`), `mature`, `visibility` (`private`
 when the creator wants a private launch: testers only, nothing lists the game, invite links and
 the public launch on its Manage page; else leave it out), `score_kind` (`time` when
 the build posts a run's milliseconds to `gameOver`, else `points`), `max_score` when the game
