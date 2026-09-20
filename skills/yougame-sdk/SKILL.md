@@ -90,6 +90,20 @@ checkpoints, level clears, and the menu. Keep the state a small plain JSON objec
 browser copy every time and sends it to the player's account on YouGame, so a signed-in
 player picks up on any device. Check the shape of what comes back before restoring from it.
 
+That is all a **web game** needs: progress follows the account by itself. Two more cases,
+and what to do in each:
+
+- **Emulated games** (a ROM hack, a patch listing, a game run in the site's emulator or the
+  desktop app's): nothing. The platform syncs the cartridge save and the save states to the
+  account without the game or the creator doing anything. Do not add save code to a listing
+  of this kind.
+- **A game with its own save format** (binary saves, files bigger than 64 KB, and above all
+  a **native build**, see "Native builds" below): use `YouGame.saves.files` (sdk.md "Save
+  files"): `files.read(name)` at start and `files.write(name, bytes)` whenever the game writes
+  its save, keeping the game's own local copy and letting the newer of the two win when they
+  differ. Up to 32 MB per file, 250 MB per account, names are file names without a path, and
+  `files.available` is false when signed out (then nothing is stored, keep the local copy).
+
 ## Controls and phones (`YouGame.input`)
 
 Keep game HUD, menus and hit targets clear of the host controls using
@@ -132,6 +146,15 @@ if (input.pressed("a")) jump();   // once per press
   game's own pointer handling; `input.hide()` / `show()` around menus under the overlay. A
   game played entirely by direct touch keeps `YouGame.input` with `touch: false` for keys and
   controllers.
+- A game whose input code should stay its own (a port that reads `keydown`, an engine export
+  or an emulator core polling `navigator.getGamepads()`) declares the scheme in the build's
+  root `yougame.json` instead: `{ "controls": { "preset": "dpad-abxy", "keys": { "a": "KeyZ" },
+  "labels": { "a": "Jump" } } }`. The SDK (the script tag must be in the page) draws the
+  on-screen controls on phones and plays them back as the key events named and as a
+  standard-mapping gamepad (`emit`: `"keys"`, `"gamepad"`, or the default `"both"`); the keys
+  must be the codes the game listens to. See "Controls declared in yougame.json" in the reference.
+- On-screen controls, called or declared, stay off while a controller is connected to the phone
+  and come back when it goes; nothing in the game has to handle that.
 - Local multiplayer (two to four people on one machine): `players: 2` in `setup` and read
   `input.players[i].state` / `input.players[i].pressed("a")` per seat; `input.state` stays seat
   1. Controllers claim seats by pressing a button, the keyboard splits (WASD side for player 1,
@@ -251,6 +274,31 @@ Tips need no game code. Purchases and tips use Gold, which players buy; spending
 creator earnings. Silver, daily grants, gifts, and coin matches are disabled for launch: do not
 promote or build flows around them. Paywalls are opt-in and priced by the creator on YouGame;
 read the current Coins section of https://yougame.co/sdk.md before implementing them.
+
+## Native builds
+
+A game that also ships desktop builds (real Mac, Windows or Linux programs the YouGame desktop
+app runs; publish.md "Desktop builds") gets the whole SDK through a loopback bridge instead of
+`sdk.js`: three environment variables on the game's process (`YOUGAME_BRIDGE`, `YOUGAME_TOKEN`,
+`YOUGAME_GAME`), `POST $YOUGAME_BRIDGE/sdk` with `Authorization: Bearer $YOUGAME_TOKEN` and a
+JSON body whose `type` is the message the web SDK would send (`hello` first, then
+`submitScore`, `leaderboard`, `saveLoad`/`saveWrite`, `saveFileList`/`saveFileRead`/
+`saveFileWrite`/`saveFileDelete`, `charge`, `mpTicket`…), and `GET $YOUGAME_BRIDGE/events` for
+the page's pushes. Read sdk.md "Native builds" for the tables. No variables set means the
+program runs outside YouGame: play without the SDK.
+
+**Saves are the step a native build must not skip.** Nothing on the platform can see a native
+game's save folder, so the program syncs its own files with the bridge's `saveFile*` messages,
+following sdk.md "Saves from a native build" exactly: at start `saveFileList`, then per file the
+account's `updated_at` against the local file's mtime (account newer → `saveFileRead`, base64
+decode, write locally before the game reads it; local newer → upload); on every save event
+`saveFileWrite` with the file's base64 (once per event, coalesced, never per frame); at exit
+upload what changed and wait for the answer; keep a note of synced sha256s so an unchanged copy
+always yields to a changed one. Names are file names without a path; `tag` only for a file bound
+to this engine version. A game whose progress fits in 64 KB of JSON can use `saveLoad`/`saveWrite`
+from the native build instead, the same slot the web build reads. Either way the web build and
+the native build share the account's saves, so a player continues from one to the other when the
+format is the same on both.
 
 ## After any of these
 

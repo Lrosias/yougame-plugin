@@ -9,7 +9,12 @@ section of https://yougame.co/sdk.md.
 Controls through `YouGame.input.setup({ preset, buttons, labels })`: the on-screen stick or
 d-pad and buttons on phones, and the same state from the keyboard and controllers on
 computers. Enable only the buttons the game uses, label them, and place custom buttons when
-the actions are the game's own. Beyond the controls: touch for menus and direct play, 44 px
+the actions are the game's own. A game whose input code should stay as it is (a port reading
+`keydown`, an engine export, an emulator core) declares the scheme in `yougame.json` instead
+(`{ "controls": { "preset": "dpad-ab", "keys": { "a": "KeyZ" } } }`, with the SDK script tag in
+the page): the SDK draws the same on-screen controls and plays them back as those keys and as
+a gamepad. Either way they stay off while a controller is connected to the phone. Beyond the
+controls: touch for menus and direct play, 44 px
 tap targets, the viewport meta tag, no page scroll or zoom while playing, and a canvas that
 fits portrait and landscape. Keyboard and mouse play on computers must keep working.
 

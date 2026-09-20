@@ -12,7 +12,13 @@ only the buttons it uses, label them with what they do, and use `custom` buttons
 actions are the game's own. Replace the old key handling with the state object. A game with
 local multiplayer passes `players: N` and reads `YouGame.input.players[i].state` per seat;
 never poll `navigator.getGamepads()` or build a remap screen (the site's Controls panel does
-that). Keep everything else working exactly as before.
+that). Keep everything else working exactly as before. If the game's input code has to stay
+its own (a port reading `keydown`, an engine export, an emulator core polling
+`navigator.getGamepads()`), do not rewrite it: declare the scheme in the build's root
+`yougame.json` (`{ "controls": { "preset": "dpad-ab", "keys": { "a": "KeyZ" }, "labels": { "a":
+"Jump" } } }`, keys being the codes the game listens to) and the SDK draws the on-screen
+controls on phones and plays them back as those keys and as a standard gamepad; they stay
+off while a controller is connected.
 
 For timing-sensitive games, pass `sampling: "manual"` and call `input.sample()` immediately
 before each original simulation frame. Rollback replays recorded frame input. Use
