@@ -74,6 +74,11 @@ way before publishing. Post finished runs only: a death or a reset is not a time
 `YouGame.createScoreShare(score, { context })` creates an unranked score link for everyone,
 including guests. Prepare it before the share click, then call `YouGame.share` with its URL.
 `username` is null for guests: use “I scored…” rather than inventing an account handle.
+On YouGame `YouGame.player.id` is always a per-game id, and `YouGame.player.name` is `"Player"`
+until the player shares their name (online matches name them `"Player"` too): a game that shows
+the player's name calls `YouGame.requestName()` from a moment the player expects (not at load),
+and the site asks them once for that game. In matches, use `room.me`, `room.players[].id` and
+`world.me`, not `YouGame.player.id`.
 Never gate sharing on login. Optional Sign in buttons call `YouGame.auth.signIn()` to open
 YouGame's sign-in page and return to this game; `YouGame.auth.signedIn` is available after
 `ready()`. Save progress before navigation. The promise acknowledges navigation, not a

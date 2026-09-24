@@ -164,7 +164,7 @@ The reply has `uploadId`, `testUrl` (the build already runs there), the `verdict
 
 Then **fill in everything** with the MCP tool **`prepare_submission`**: the `uploadId`, a
 title, a one-paragraph description written from the game, up to three genres, the controls,
-`play_mode`, `mobile` (only after you played the whole game by touch, at phone and iPad sizes, in and out of fullscreen: phones and iPads list only games with it on, and the check report's input kinds say whether the source can take touch at all; not sure, `false` and say why in `notes`), `mature`, `visibility` (`private`
+`play_mode`, `mobile` (only after you played the whole game by touch, at phone and iPad sizes, in and out of fullscreen: phones and iPads list only games with it on, and the check report's input kinds say whether the source can take touch at all; not sure, `false` and say why in `notes`; a ROM hack is the exception: it runs in YouGame's emulator, whose on-screen controller makes it playable on phones, so `true` unless it truly cannot be played that way), `mature`, `visibility` (`private`
 when the creator wants a private launch: testers only, nothing lists the game, invite links and
 the public launch on its Manage page; else leave it out), `score_kind` (`time` when
 the build posts a run's milliseconds to `gameOver`, else `points`), `max_score` when the game
