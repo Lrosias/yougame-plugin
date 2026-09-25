@@ -39,6 +39,16 @@ var PAYOUT_CENTS_PER_1000_GOLD = 55;
 var MIN_PAYOUT_GOLD = Math.ceil(2500 * 1e3 / PAYOUT_CENTS_PER_1000_GOLD);
 var MAX_PAYOUT_CENTS = 5e4;
 var MAX_PAYOUT_GOLD = Math.floor(MAX_PAYOUT_CENTS * 1e3 / PAYOUT_CENTS_PER_1000_GOLD);
+var GOLD_PACKS = [
+  { gold: 6400, cents: 499 },
+  { gold: 13e3, cents: 999 },
+  { gold: 27e3, cents: 1999 },
+  { gold: 7e4, cents: 4999 },
+  { gold: 145e3, cents: 9999 }
+];
+var IAP_CENTS = [599, 1299, 2499, 5999, 12499];
+var IAP_PACKS = GOLD_PACKS.map((p, i) => ({ productId: `co.yougame.gold.${p.gold}`, gold: p.gold, cents: IAP_CENTS[i], webCents: p.cents }));
+var WEB_SAVING_PERCENT = Math.min(...IAP_PACKS.map((p) => Math.floor((1 - p.webCents / p.cents) * 100)));
 
 // node_modules/@opennextjs/cloudflare/dist/api/cloudflare-context.js
 var cloudflareContextSymbol = Symbol.for("__cloudflare-context__");
@@ -271,7 +281,7 @@ function validateUploadFiles(value, opts = {}) {
     files.push({ path: f.path, size: f.size });
   }
   const pkg = !!opts.package || isPatchOnly([...seen]);
-  if (!seen.has("index.html") && !pkg) return { error: "Build must contain index.html at the top level. A ROM hack is one .ips, .ups, .bps or .xdelta file and nothing else; a mod's package is declared with package: true." };
+  if (!seen.has("index.html") && !pkg) return { error: "Build must contain index.html at the top level. A ROM mod is one .ips, .ups, .bps or .xdelta file and nothing else; a cosmetic's package is declared with package: true." };
   if (total > MAX_UPLOAD_BYTES) return { error: "Build is over 5 GB unzipped" };
   return { files, total, package: pkg };
 }
@@ -281,7 +291,7 @@ async function prepareFiles(directory, scratch, opts = {}) {
   const paths = [];
   const target = await stat(directory);
   if (target.isFile()) {
-    if (!romPatchFormatOf(basename(directory))) throw new Error("Point at a build folder, or at a ROM hack's one patch file (.ips, .ups, .bps or .xdelta).");
+    if (!romPatchFormatOf(basename(directory))) throw new Error("Point at a build folder, or at a ROM mod's one patch file (.ips, .ups, .bps or .xdelta).");
     paths.push(basename(directory));
     directory = dirname(directory);
   }
@@ -300,7 +310,7 @@ async function prepareFiles(directory, scratch, opts = {}) {
   const build = buildFolder(paths);
   const { entry } = entryPage(build.paths);
   const pkg = !entry && (opts.package === true || isPatchOnly(build.paths));
-  if (!entry && !pkg) throw new Error("Point at the finished build folder with index.html (or one top-level HTML page), at a ROM hack's one patch file (.ips, .ups, .bps or .xdelta), or pass --package for a mod's folder.");
+  if (!entry && !pkg) throw new Error("Point at the finished build folder with index.html (or one top-level HTML page), at a ROM mod's one patch file (.ips, .ups, .bps or .xdelta), or pass --package for a cosmetic's folder.");
   const prefix = build.folder ? `${build.folder}/` : "";
   const files = [];
   for (const path of build.paths) {
@@ -378,7 +388,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const packageOpt = args.includes("--package");
   const targets = args.filter((a) => a !== "--package");
   if (targets.length !== 1 || targets[0].startsWith("--")) {
-    console.error("Usage: node upload-build.mjs [--package] <build-folder | patch-file> (Node 22+). Set YOUGAME_UPLOAD_TOKEN or YOUGAME_API_KEY. A ROM hack is its one .ips/.ups/.bps/.xdelta file; --package stages a mod's folder.");
+    console.error("Usage: node upload-build.mjs [--package] <build-folder | patch-file> (Node 22+). Set YOUGAME_UPLOAD_TOKEN or YOUGAME_API_KEY. A ROM mod is its one .ips/.ups/.bps/.xdelta file; --package stages a cosmetic's folder.");
     process.exitCode = 2;
   } else {
     try {
