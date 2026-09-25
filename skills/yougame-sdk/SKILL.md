@@ -17,7 +17,7 @@ for one answer, e.g. `search("rematch")`. Read the relevant section before writi
 the API details change faster than this skill does.
 
 Each feature also exists as an MCP prompt you can run instead of re-deriving the work:
-`add_leaderboard`, `add_saves`, `add_paywalls`, `make_playable_on_phones`, `add_controls`, `add_multiplayer`; and
+`add_leaderboard`, `add_saves`, `add_paywalls`, `make_playable_on_phones`, `add_controls`, `add_multiplayer`, `add_world`, `add_races`; and
 `make_yougame_ready` takes them all as yes/no arguments (plus the creator's paywall rows) when
 the game is being made ready in one go.
 
