@@ -15,7 +15,7 @@ or tied to coins. Writes are last-writer-wins per key, so give every fast-changi
 writer (each player writes only their own `p:<id>` keys) and use `claim`, `cas`, or `inc`
 for shared objects. Nothing happens while nobody is connected. Limits: 32 players, 16 KB
 per value, 60 messages a second per player, 10,000 keys and 512 KB per world; no matchmaking,
-ratings, or coin matches inside a world. If any of that rules this game out, say so and stop.
+or ratings inside a world. If any of that rules this game out, say so and stop.
 
 Otherwise add a "Join world" option that calls `YouGame.worlds.join("main")` (or lists
 `YouGame.worlds.list()` and lets the player pick or create one), render from `world.state`

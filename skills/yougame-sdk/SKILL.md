@@ -269,14 +269,14 @@ relays, not a game server. Tell the creator, in plain words:
 - nothing happens while nobody is connected: no ticks, no NPCs, no offline progress;
 - everyone receives every change and a joining player downloads the whole state;
 - 32 players, 16 KB per value, 60 messages a second per player, 10,000 keys and 512 KB
-  per world; no matchmaking, ratings, result card, or coin match inside a world.
+  per world; no matchmaking, ratings, or result card inside a world.
 
 If any of that rules the game out, say so and stop rather than building around it.
 
 ## Coins
 
 Tips need no game code. Purchases and tips use Gold, which players buy; spending Gold creates
-creator earnings. Silver, daily grants, gifts, and coin matches are disabled for launch: do not
+creator earnings. Silver, daily grants, and gifts are disabled for launch: do not
 promote or build flows around them. Paywalls are opt-in and priced by the creator on YouGame;
 read the current Coins section of https://yougame.co/sdk.md before implementing them.
 
