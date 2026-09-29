@@ -223,7 +223,11 @@ with a map can make it proximity chat when the creator asks: call
 whenever positions change (every frame is fine; the SDK throttles). `YouGame.voice.levels({ [id]: 0..1 })`
 is the plain form for team channels or walls, and `YouGame.voice.talking` /
 `YouGame.voice.on("talking", ids => …)` drives a speaking mark. It never changes who may hear
-whom (friends, and everyone in a friends room); see "Proximity chat" in the reference.
+whom (by default friends, and everyone in a friends room). If the creator wants everyone in a
+match on voice, not just friends (proximity chat as a core mechanic), say so in your notes: the
+listing field is `voice_everyone: true` (or the switch on the game's Manage page), no game code;
+it covers match rooms (first ten players), not worlds.
+See "Proximity chat" in the reference.
 
 The game's job is the
 host-authoritative loop — host simulates, others send inputs, host broadcasts state at
