@@ -140,7 +140,9 @@ if (input.pressed("a")) jump();   // once per press
 ```
 
 - Presets: `stick-ab` (default), `stick-abxy`, `dpad-ab`, `dpad-abxy`, `twin-stick`,
-  `buttons`. Enable **only the buttons the game uses** with `buttons: ["a"]` and so on; a
+  `buttons`, and `n64` (the full N64 pad, the layout of YouGame's N64 runtime: for a native N64
+  port, declare `{ "controls": { "preset": "n64", "emit": "gamepad" } }` in yougame.json; it plays
+  back the way N64 ports read a standard controller, C buttons on the right stick). Enable **only the buttons the game uses** with `buttons: ["a"]` and so on; a
   button that is not enabled is not drawn, not bound, and never true. Do not leave X, Y, L1,
   R1, L2, R2 on for a game that does not use them.
 - Label buttons with what they do (`labels`), and place custom buttons by fractions of the
