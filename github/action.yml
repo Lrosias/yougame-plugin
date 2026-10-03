@@ -1,0 +1,64 @@
+name: Publish to YouGame
+description: Ship this repo's build as the next version of a YouGame listing, with no secret to store (GitHub OIDC trusted publishing).
+author: YouGame
+branding:
+  icon: upload-cloud
+  color: purple
+inputs:
+  slug:
+    description: The listing's slug (yougame.co/g/<slug>). Link this repo to it first on the listing's Manage page, under GitHub.
+    required: true
+  path:
+    description: The finished build folder with index.html (`.` for a game with no build step), a ROM hack's one patch file, or a cosmetic's folder with `package`.
+    required: true
+  kind:
+    description: "`minor` (the default) or `major`. A major version tells everyone who saved or liked the game."
+    required: false
+    default: minor
+  notes:
+    description: Patch notes. Defaults to the GitHub release's notes, else the head commit's message.
+    required: false
+    default: ""
+  package:
+    description: "`true` to publish a cosmetic's folder (no page of its own)."
+    required: false
+    default: "false"
+  preview:
+    description: "`true` to only stage the build and print its 24-hour test link, shipping nothing. The Manage page's workflow previews pushes and pre-releases and ships published releases."
+    required: false
+    default: "false"
+  site:
+    description: The YouGame site to publish to.
+    required: false
+    default: https://yougame.co
+outputs:
+  test-url:
+    description: The staged build's test link (24 hours), set on every run.
+    value: ${{ steps.publish.outputs.test-url }}
+  version:
+    description: The version that was released, e.g. 1.4. Empty for a preview.
+    value: ${{ steps.publish.outputs.version }}
+  url:
+    description: The listing's address.
+    value: ${{ steps.publish.outputs.url }}
+  held:
+    description: "`true` when the release waits for YouGame's safety review."
+    value: ${{ steps.publish.outputs.held }}
+runs:
+  using: composite
+  steps:
+    # upload-build.mjs streams files with fetch and needs Node 22 or later.
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - id: publish
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/publish.mjs"
+      env:
+        YOUGAME_SLUG: ${{ inputs.slug }}
+        YOUGAME_PATH: ${{ inputs.path }}
+        YOUGAME_KIND: ${{ inputs.kind }}
+        YOUGAME_NOTES: ${{ inputs.notes }}
+        YOUGAME_PACKAGE: ${{ inputs.package }}
+        YOUGAME_PREVIEW: ${{ inputs.preview }}
+        YOUGAME_SITE: ${{ inputs.site }}

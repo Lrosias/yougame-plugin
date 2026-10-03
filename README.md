@@ -85,7 +85,13 @@ skills/           publish-to-yougame, yougame-sdk
 commands/         /yougame:publish, :check, :leaderboard, :saves, :phones, :controls, :multiplayer, :world
 scripts/          upload-build.mjs — streams a local build through the shared upload routes
                   zip-build.sh — packages a build for manual browser upload
+github/           the "Publish to YouGame" GitHub Action: a published release ships the next version
 ```
+
+To ship from GitHub, link the repo on the game's Manage page (GitHub) and use
+`Lrosias/yougame-plugin/github@v1` in a publish job with `id-token: write` (the Manage page
+writes the whole workflow). No secret to store:
+https://yougame.co/publish.md#ship-from-github.
 
 Docs, prompts and checks all live on the server, so the plugin stays current without an
 update: https://yougame.co/publish.md, https://yougame.co/sdk.md, https://yougame.co/plugin.
