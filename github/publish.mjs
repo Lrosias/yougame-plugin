@@ -28,13 +28,15 @@ function fail(message) {
   process.exit(1);
 }
 
-async function oidcToken() {
+/** This run's OIDC token, or (with `soft`) null instead of failing the run. */
+async function oidcToken(soft = false) {
+  const stop = (message) => (soft ? null : fail(message));
   if (!env.ACTIONS_ID_TOKEN_REQUEST_URL || !env.ACTIONS_ID_TOKEN_REQUEST_TOKEN)
-    fail("GitHub gave this job no OIDC token. Add `permissions: { contents: read, id-token: write }` to the workflow (or the job).");
+    return stop("GitHub gave this job no OIDC token. Add `permissions: { id-token: write }` to the publish job.");
   const url = `${env.ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${encodeURIComponent(AUDIENCE)}`;
-  const res = await fetch(url, { headers: { authorization: `bearer ${env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` } });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok || !body.value) fail(`GitHub did not hand out an OIDC token (HTTP ${res.status}).`);
+  const res = await fetch(url, { headers: { authorization: `bearer ${env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` } }).catch(() => null);
+  const body = res ? await res.json().catch(() => ({})) : {};
+  if (!res?.ok || !body.value) return stop(`GitHub did not hand out an OIDC token (HTTP ${res?.status ?? "error"}).`);
   console.log(`::add-mask::${body.value}`);
   return body.value;
 }
@@ -111,7 +113,16 @@ try {
   if (staged.verdict === "broken") fail("YouGame's checks found this build broken (report above). Nothing was released.");
   if (staged.testUrl) await output("test-url", staged.testUrl);
   if (preview) {
-    const line = `Preview staged (nothing shipped): ${staged.testUrl || staged.uploadId}. The link works for 24 hours. Publish a GitHub release to ship a version.`;
+    // Tell YouGame, so the game's Manage page links the preview too. Not fatal: the link is printed here either way.
+    const reportToken = await oidcToken(true);
+    if (reportToken)
+      await fetch(`${site}/api/git/preview`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${reportToken}`, "content-type": "application/json" },
+        body: JSON.stringify({ slug, uploadId: staged.uploadId }),
+        redirect: "error",
+      }).catch(() => null);
+    const line = `Preview staged (nothing shipped): ${staged.testUrl || staged.uploadId}. The link works for 24 hours, and the game's Manage page links it too. Publish a GitHub release to ship a version.`;
     console.log(line);
     if (env.GITHUB_STEP_SUMMARY) await appendFile(env.GITHUB_STEP_SUMMARY, `### YouGame preview\n\n${line}\n`);
     process.exit(0);
