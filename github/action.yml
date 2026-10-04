@@ -48,7 +48,7 @@ runs:
   using: composite
   steps:
     # upload-build.mjs streams files with fetch and needs Node 22 or later.
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: 22
     - id: publish
